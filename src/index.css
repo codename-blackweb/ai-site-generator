@@ -91,8 +91,36 @@
     --sidebar-ring: 12 72% 62%;
   }
 
+  /* Day Exhibition Theme */
+  .day-theme {
+    --background: 40 20% 96%;
+    --foreground: 222 30% 15%;
+    --card: 40 15% 92%;
+    --card-foreground: 222 30% 15%;
+    --popover: 40 15% 94%;
+    --popover-foreground: 222 30% 15%;
+    --primary: 12 72% 55%;
+    --primary-foreground: 40 20% 98%;
+    --secondary: 210 25% 88%;
+    --secondary-foreground: 222 30% 20%;
+    --muted: 40 10% 85%;
+    --muted-foreground: 220 15% 45%;
+    --accent: 195 35% 75%;
+    --accent-foreground: 222 30% 15%;
+    --border: 40 10% 82%;
+    --input: 40 10% 88%;
+    --ring: 12 72% 55%;
+    --exhibit-navy: 222 30% 15%;
+    --exhibit-coral: 12 72% 55%;
+    --exhibit-cream: 40 20% 20%;
+    --glass-background: 40 15% 94% / 0.8;
+    --glass-border: 40 10% 75% / 0.5;
+    --gradient-mesh: radial-gradient(ellipse 80% 60% at 70% 20%, hsl(195 35% 85% / 0.5), transparent),
+                     radial-gradient(ellipse 60% 80% at 20% 80%, hsl(12 50% 85% / 0.4), transparent),
+                     radial-gradient(ellipse 100% 100% at 50% 50%, hsl(40 20% 96%), hsl(40 15% 92%));
+  }
+
   .dark {
-    /* Night Exhibition is the default dark theme */
     --background: 222 47% 6%;
     --foreground: 38 20% 92%;
   }
