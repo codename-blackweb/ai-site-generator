@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Eye, Calendar, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, ExternalLink, Calendar, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProjects, type Project } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,20 +64,19 @@ export function GallerySection() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 40, scale: 0.95 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      scale: 1,
       transition: {
-        duration: 0.6,
+        duration: 0.42,
         ease: "easeOut" as const,
       },
     },
@@ -89,18 +88,18 @@ export function GallerySection() {
         {/* Section header */}
         <motion.div 
           className="max-w-3xl mb-20"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.42, ease: "easeOut" }}
         >
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mb-6">
-            The Exhibition
+            Featured Samples
           </h2>
           <p className="text-muted-foreground text-lg">
             {user 
-              ? "Your curated collection of AI-generated websites. Each piece is a fully functional, production-ready creation."
-              : "A curated collection of AI-generated websites. Sign in to create and save your own."}
+              ? "Your curated collection of websites. Each piece is a fully functional, production-ready creation."
+              : "A curated collection of sample websites. Sign in to create and save your own."}
           </p>
         </motion.div>
 
@@ -132,12 +131,11 @@ export function GallerySection() {
                   onMouseEnter={() => setHoveredId(project.id)}
                   onMouseLeave={() => setHoveredId(null)}
                   onClick={() => 'generated_content' in project && setSelectedProject(project as Project)}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
+                  whileHover={{ y: -4, transition: { duration: 0.24, ease: "easeOut" } }}
                 >
                   {/* Background image */}
                   <div 
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-slow ease-exhibit group-hover:scale-105"
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-300 ease-out group-hover:scale-[1.03]"
                     style={{ backgroundImage: `url(${project.preview_image_url})` }}
                   />
                   
@@ -189,15 +187,17 @@ export function GallerySection() {
         {/* View all link */}
         <motion.div 
           className="text-center mt-16"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.42, delay: 0.2, ease: "easeOut" }}
         >
-          <Button variant="outline" size="lg" className="group">
-            View Full Collection
-            <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </Button>
+          <a href="#generator">
+            <Button variant="outline" size="lg" className="group">
+              Create Your Own
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </a>
         </motion.div>
       </div>
 

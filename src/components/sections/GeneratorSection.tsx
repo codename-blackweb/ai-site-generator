@@ -100,30 +100,30 @@ export function GeneratorSection() {
           {/* Section header */}
           <motion.div 
             className="text-center mb-16"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.42, ease: "easeOut" }}
           >
             <div className="inline-flex items-center gap-2 glass-panel rounded-full px-4 py-2 mb-6">
               <Wand2 className="w-4 h-4 text-primary" />
-              <span className="text-sm text-muted-foreground">AI Generator</span>
+              <span className="text-sm text-muted-foreground">Website Generator</span>
             </div>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mb-4">
               Create in seconds
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              Tell us about your project and watch as AI crafts a stunning website tailored to your vision.
+              Tell us about your project and watch as we craft a stunning website tailored to your vision.
             </p>
           </motion.div>
 
           {/* Generator form */}
           <motion.div 
             className="glass-panel rounded-3xl p-8 md:p-12"
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.42, delay: 0.1, ease: "easeOut" }}
           >
             {/* Progress indicator */}
             <div className="flex items-center justify-between mb-12">
