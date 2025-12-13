@@ -1,9 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, Wand2, Layout, Palette, Target, Users, Building2 } from "lucide-react";
+import { ArrowRight, Wand2, Layout, Palette, Target, Users, Building2, Loader2 } from "lucide-react";
+import { useGenerateWebsite, useCreateProject } from "@/hooks/useProjects";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const industries = [
   "Technology", "Creative Agency", "E-commerce", "Healthcare", 
@@ -25,6 +30,11 @@ const layouts = [
 ];
 
 export function GeneratorSection() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const generateWebsite = useGenerateWebsite();
+  const createProject = useCreateProject();
+  
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     projectName: "",
@@ -40,6 +50,47 @@ export function GeneratorSection() {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleGenerate = async () => {
+    if (!user) {
+      toast.error("Please sign in to generate and save projects");
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      const generatedContent = await generateWebsite.mutateAsync(formData);
+      
+      await createProject.mutateAsync({
+        title: formData.projectName,
+        description: formData.goal,
+        industry: formData.industry,
+        target_audience: formData.audience,
+        primary_goal: formData.goal,
+        brand_tone: formData.tone,
+        color_preferences: formData.colors,
+        layout_type: formData.layout,
+        project_type: "website",
+        generated_content: generatedContent,
+      });
+
+      toast.success("Website generated and saved!");
+      setStep(1);
+      setFormData({
+        projectName: "",
+        industry: "",
+        audience: "",
+        goal: "",
+        tone: "",
+        colors: "",
+        layout: "",
+      });
+    } catch (error) {
+      console.error("Generation error:", error);
+    }
+  };
+
+  const isGenerating = generateWebsite.isPending || createProject.isPending;
+
   return (
     <section id="generator" className="py-32 relative">
       <div className="absolute inset-0 mesh-gradient opacity-50" />
@@ -47,7 +98,13 @@ export function GeneratorSection() {
       <div className="relative container px-6">
         <div className="max-w-3xl mx-auto">
           {/* Section header */}
-          <div className="text-center mb-16">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
             <div className="inline-flex items-center gap-2 glass-panel rounded-full px-4 py-2 mb-6">
               <Wand2 className="w-4 h-4 text-primary" />
               <span className="text-sm text-muted-foreground">AI Generator</span>
@@ -58,10 +115,16 @@ export function GeneratorSection() {
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Tell us about your project and watch as AI crafts a stunning website tailored to your vision.
             </p>
-          </div>
+          </motion.div>
 
           {/* Generator form */}
-          <div className="glass-panel rounded-3xl p-8 md:p-12">
+          <motion.div 
+            className="glass-panel rounded-3xl p-8 md:p-12"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
             {/* Progress indicator */}
             <div className="flex items-center justify-between mb-12">
               {[1, 2, 3].map((s) => (
@@ -86,7 +149,12 @@ export function GeneratorSection() {
 
             {/* Step 1: Basics */}
             {step === 1 && (
-              <div className="space-y-8 animate-fade-in">
+              <motion.div 
+                className="space-y-8"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="space-y-3">
                   <Label htmlFor="projectName" className="text-base">Project Name</Label>
                   <Input
@@ -130,12 +198,17 @@ export function GeneratorSection() {
                     className="h-14 text-lg bg-secondary/50 border-border/50"
                   />
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Step 2: Goals & Tone */}
             {step === 2 && (
-              <div className="space-y-8 animate-fade-in">
+              <motion.div 
+                className="space-y-8"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="space-y-3">
                   <Label htmlFor="goal" className="text-base">Primary Goal</Label>
                   <Textarea
@@ -166,12 +239,17 @@ export function GeneratorSection() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Step 3: Design Preferences */}
             {step === 3 && (
-              <div className="space-y-8 animate-fade-in">
+              <motion.div 
+                className="space-y-8"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="space-y-3">
                   <Label htmlFor="colors" className="text-base flex items-center gap-2">
                     <Palette className="w-4 h-4" />
@@ -213,7 +291,7 @@ export function GeneratorSection() {
                     Ready to generate your website? This will create a fully designed, production-ready page.
                   </p>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Navigation */}
@@ -222,6 +300,7 @@ export function GeneratorSection() {
                 <Button 
                   variant="ghost" 
                   onClick={() => setStep(step - 1)}
+                  disabled={isGenerating}
                 >
                   Back
                 </Button>
@@ -242,14 +321,25 @@ export function GeneratorSection() {
                 <Button 
                   variant="coral"
                   size="lg"
-                  className="group animate-pulse-glow"
+                  className="group"
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
                 >
-                  <Wand2 className="w-5 h-5" />
-                  Generate Website
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-5 h-5" />
+                      Generate Website
+                    </>
+                  )}
                 </Button>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
