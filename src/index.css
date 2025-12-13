@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 /* EXHIBIT Design System - Night Exhibition Theme
    A museum-grade, calm, confident, expensive aesthetic */
@@ -44,7 +44,7 @@
 
     --radius: 0.75rem;
 
-    /* Custom EXHIBIT tokens */
+    /* Custom tokens */
     --exhibit-navy: 222 47% 6%;
     --exhibit-navy-light: 220 40% 12%;
     --exhibit-coral: 12 72% 62%;
@@ -52,30 +52,30 @@
     --exhibit-teal: 195 45% 45%;
     --exhibit-cream: 38 20% 92%;
     --exhibit-cream-muted: 38 15% 75%;
-    
+
     /* Glass effects */
     --glass-background: 222 35% 12% / 0.7;
     --glass-border: 215 25% 25% / 0.4;
     --glass-blur: 20px;
-    
+
     /* Gradients */
     --gradient-mesh: radial-gradient(ellipse 80% 60% at 70% 20%, hsl(195 45% 35% / 0.4), transparent),
                      radial-gradient(ellipse 60% 80% at 20% 80%, hsl(12 72% 50% / 0.3), transparent),
                      radial-gradient(ellipse 100% 100% at 50% 50%, hsl(220 40% 8%), hsl(222 47% 4%));
-    
+
     --gradient-coral: linear-gradient(135deg, hsl(12 72% 62%), hsl(20 65% 55%));
     --gradient-glass: linear-gradient(135deg, hsl(var(--glass-background)), hsl(222 35% 8% / 0.5));
-    
+
     /* Shadows */
     --shadow-soft: 0 4px 24px -4px hsl(222 47% 4% / 0.5);
     --shadow-glow: 0 0 60px -12px hsl(12 72% 50% / 0.3);
     --shadow-elevated: 0 24px 48px -12px hsl(222 47% 2% / 0.6);
-    
+
     /* Typography */
     --font-display: 'Playfair Display', Georgia, serif;
     --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    
-    /* Motion - slow and intentional */
+
+    /* Motion */
     --transition-slow: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     --transition-medium: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     --transition-fast: 0.2s cubic-bezier(0.22, 1, 0.36, 1);
@@ -91,7 +91,6 @@
     --sidebar-ring: 12 72% 62%;
   }
 
-  /* Day Exhibition Theme */
   .day-theme {
     --background: 40 20% 96%;
     --foreground: 222 30% 15%;
@@ -147,7 +146,6 @@
     letter-spacing: -0.02em;
   }
 
-  /* Noise texture overlay */
   .noise-overlay {
     position: fixed;
     inset: 0;
@@ -159,7 +157,6 @@
 }
 
 @layer components {
-  /* Glass panel effect */
   .glass-panel {
     background: hsl(var(--glass-background));
     backdrop-filter: blur(var(--glass-blur));
@@ -168,12 +165,10 @@
     box-shadow: var(--shadow-soft);
   }
 
-  /* Mesh gradient background */
   .mesh-gradient {
     background: var(--gradient-mesh);
   }
 
-  /* Coral accent button */
   .btn-coral {
     background: var(--gradient-coral);
     color: hsl(var(--exhibit-navy));
@@ -186,7 +181,6 @@
     transform: translateY(-2px);
   }
 
-  /* Exhibit card hover */
   .exhibit-card {
     transition: all var(--transition-slow);
   }
@@ -195,21 +189,6 @@
     transform: translateY(-8px) scale(1.02);
     box-shadow: var(--shadow-elevated);
   }
-
-  /* Fade in animation */
-  .fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
-  }
-
-  .fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  .fade-in-delay-1 { animation-delay: 0.1s; }
-  .fade-in-delay-2 { animation-delay: 0.2s; }
-  .fade-in-delay-3 { animation-delay: 0.3s; }
-  .fade-in-delay-4 { animation-delay: 0.4s; }
-  .fade-in-delay-5 { animation-delay: 0.5s; }
 }
 
 @layer utilities {
@@ -234,39 +213,11 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 40px -10px hsl(12 72% 50% / 0.3);
-  }
-  50% {
-    box-shadow: 0 0 60px -10px hsl(12 72% 50% / 0.5);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }

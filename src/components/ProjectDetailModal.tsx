@@ -1,186 +1,103 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Copy, Calendar, Tag, Users, Target } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import type { Project } from "@/hooks/useProjects";
+import { ExternalLink, Eye } from "lucide-react";
+import { getWebsiteBySlug } from "@/hooks/useWebsites";
+import type { Json } from "@/integrations/supabase/types";
 
-interface ProjectDetailModalProps {
-  project: Project | null;
+const fallbackImage = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop";
+
+interface WebsiteDetailModalProps {
+  website: {
+    id: string;
+    title: string | null;
+    slug: string | null;
+    created_at: string;
+    json_data: Json | null;
+    preview_image_url?: string | null;
+  };
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailModalProps) {
-  if (!project) return null;
+export function ProjectDetailModal({ website, isOpen, onClose }: WebsiteDetailModalProps) {
+  const [fullWebsite, setFullWebsite] = useState<any>(null);
 
-  const shareUrl = `${window.location.origin}/project/${project.id}`;
+  useEffect(() => {
+    async function load() {
+      if (!website?.slug) return;
+      try {
+        const data = await getWebsiteBySlug(website.slug);
+        setFullWebsite(data);
+      } catch (e) {
+        console.error("Failed to load website details:", e);
+      }
+    }
 
-  const copyShareLink = () => {
-    navigator.clipboard.writeText(shareUrl);
-    toast.success("Link copied to clipboard");
-  };
-
-  const content = project.generated_content as Record<string, any> | null;
+    if (isOpen) load();
+  }, [isOpen, website?.slug]);
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">
+            {website.title || "Website"}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6 mt-4">
+          {/* Preview image */}
           <motion.div
-            initial={{ opacity: 0 }}
+            className="rounded-xl overflow-hidden exhibit-card aspect-[16/9]"
+            initial={{ opacity: 0.6 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
-            onClick={onClose}
-          />
-          
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, y: 100, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 100, scale: 0.95 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-4 md:inset-8 lg:inset-16 bg-card rounded-3xl overflow-hidden z-50 flex flex-col"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-border/50">
-              <div className="flex items-center gap-4">
-                <span className="glass-panel px-3 py-1 rounded-full text-sm text-muted-foreground">
-                  {project.industry || project.project_type}
-                </span>
-                <span className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {new Date(project.created_at).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={copyShareLink}>
-                  <Copy className="w-4 h-4" />
-                  Copy Link
-                </Button>
-                <Button variant="glass" size="sm">
-                  <ExternalLink className="w-4 h-4" />
-                  Open Live
-                </Button>
-                <Button variant="ghost" size="icon" onClick={onClose}>
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
+            <div
+              className="w-full h-full bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${website.preview_image_url || fallbackImage})`,
+              }}
+            />
+          </motion.div>
+
+          {/* Metadata */}
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p><strong>Slug:</strong> {website.slug || "none"}</p>
+            <p><strong>Created:</strong> {new Date(website.created_at).toLocaleString()}</p>
+          </div>
+
+          {/* JSON content summary */}
+          {fullWebsite?.json_data && (
+            <div className="bg-secondary/40 p-4 rounded-xl border border-border/40">
+              <p className="font-semibold mb-2 text-sm">Generated Content</p>
+              <pre className="text-xs whitespace-pre-wrap opacity-70">
+                {JSON.stringify(fullWebsite.json_data, null, 2).slice(0, 600)}…
+              </pre>
             </div>
-            
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto">
-              {/* Hero Preview */}
-              <div 
-                className="aspect-[21/9] bg-cover bg-center relative"
-                style={{ 
-                  backgroundImage: `url(${project.preview_image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&h=800&fit=crop'})` 
+          )}
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="ghost" onClick={onClose}>
+              Close
+            </Button>
+
+            {website.slug && (
+              <Button
+                variant="coral"
+                onClick={() => {
+                  window.open(`/site/${website.slug}`, "_blank");
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
-              </div>
-              
-              {/* Project Info */}
-              <div className="p-8 md:p-12 -mt-24 relative">
-                <div className="max-w-4xl">
-                  <h1 className="font-display text-4xl md:text-5xl lg:text-6xl mb-4">
-                    {project.title}
-                  </h1>
-                  
-                  <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                    {project.description || "A beautifully crafted website generated by AI, tailored to your specific requirements and brand vision."}
-                  </p>
-                  
-                  {/* Project Meta */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    {project.target_audience && (
-                      <div className="glass-panel rounded-xl p-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Users className="w-4 h-4" />
-                          Target Audience
-                        </div>
-                        <p className="font-medium">{project.target_audience}</p>
-                      </div>
-                    )}
-                    
-                    {project.primary_goal && (
-                      <div className="glass-panel rounded-xl p-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Target className="w-4 h-4" />
-                          Primary Goal
-                        </div>
-                        <p className="font-medium">{project.primary_goal}</p>
-                      </div>
-                    )}
-                    
-                    {project.brand_tone && (
-                      <div className="glass-panel rounded-xl p-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Tag className="w-4 h-4" />
-                          Brand Tone
-                        </div>
-                        <p className="font-medium capitalize">{project.brand_tone}</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Generated Content Sections */}
-                  {content && (
-                    <div className="space-y-12">
-                      {content.hero && (
-                        <section>
-                          <h2 className="font-display text-2xl mb-4">Hero Section</h2>
-                          <div className="glass-panel rounded-2xl p-6">
-                            <h3 className="text-xl font-medium mb-2">{content.hero.headline}</h3>
-                            <p className="text-muted-foreground">{content.hero.subheadline}</p>
-                          </div>
-                        </section>
-                      )}
-                      
-                      {content.features && content.features.length > 0 && (
-                        <section>
-                          <h2 className="font-display text-2xl mb-4">Features</h2>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {content.features.map((feature: any, i: number) => (
-                              <div key={i} className="glass-panel rounded-xl p-4">
-                                <h4 className="font-medium mb-1">{feature.title}</h4>
-                                <p className="text-sm text-muted-foreground">{feature.description}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </section>
-                      )}
-                      
-                      {content.testimonials && content.testimonials.length > 0 && (
-                        <section>
-                          <h2 className="font-display text-2xl mb-4">Testimonials</h2>
-                          <div className="space-y-4">
-                            {content.testimonials.map((testimonial: any, i: number) => (
-                              <div key={i} className="glass-panel rounded-xl p-6">
-                                <p className="text-lg italic mb-4">"{testimonial.quote}"</p>
-                                <p className="font-medium">{testimonial.author}</p>
-                                {testimonial.role && (
-                                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </section>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Open Live
+              </Button>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

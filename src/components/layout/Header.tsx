@@ -23,36 +23,43 @@ export function Header() {
         <div className="container flex items-center justify-between h-24 px-6">
           <div className="flex items-center gap-3">
             <Link to="/">
-              <img alt="EXHIBIT" className="h-14 md:h-16 w-auto object-contain" src="/lovable-uploads/b4d9c2a1-9b5e-41d6-8d0d-d3d20248fafb.png" />
+              <img
+                alt="EXHIBIT"
+                className="h-32 md:h-36 w-auto object-contain"
+                src={exhibitLogo}
+              />
             </Link>
           </div>
-          
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+              Home
+            </Link>
+            <Link to="/generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
               Generator
-            </a>
-            <a href="#gallery" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+            </Link>
+            <Link to="/gallery" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
               Gallery
-            </a>
-            <a href="#portfolio" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+            </Link>
+            <Link to="/portfolios" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
               Portfolio
-            </a>
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            {user ? <>
+            {user ? (
+              <>
                 <Button variant="ghost" size="sm" onClick={() => signOut()}>
                   Sign Out
                 </Button>
-              </> : <>
+              </>
+            ) : (
+              <>
                 <Link to="/auth">
                   <Button variant="ghost" size="sm">Sign In</Button>
                 </Link>
-                <Link to="/auth">
-                  <Button variant="coral" size="sm">Get Started</Button>
-                </Link>
-              </>}
+              </>
+            )}
           </div>
         </div>
       </div>

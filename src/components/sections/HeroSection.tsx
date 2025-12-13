@@ -84,10 +84,10 @@ export function HeroSection() {
             <Button 
               variant="hero" 
               size="lg" 
-              className="group"
+              className="group text-white"
               onClick={handleStartCreating}
             >
-              Start Creating
+              Get Started
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button 

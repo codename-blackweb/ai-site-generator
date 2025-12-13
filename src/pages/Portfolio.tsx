@@ -32,7 +32,7 @@ export default function Portfolio() {
     : {};
 
   return (
-    <div className="min-h-screen bg-background" style={accentStyle}>
+    <div className="min-h-screen bg-background pt-12 md:pt-16" style={accentStyle}>
       <div className="noise-overlay" />
       
       {/* Header */}

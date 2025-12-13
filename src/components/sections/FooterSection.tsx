@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import exhibitLogo from "@/assets/exhibit-logo.png";
 
 export function FooterSection() {
@@ -10,7 +11,7 @@ export function FooterSection() {
             <img 
               src={exhibitLogo} 
               alt="EXHIBIT" 
-              className="h-8 w-auto object-contain opacity-80"
+              className="h-60 md:h-72 w-auto object-contain opacity-90"
             />
             <p className="text-muted-foreground text-sm max-w-xs">
               Museum-grade portfolio and website generation for creative professionals.
@@ -22,28 +23,30 @@ export function FooterSection() {
             <div>
               <h4 className="font-medium text-sm mb-4">Platform</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Generator</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Gallery</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Portfolios</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Themes</a></li>
+                <li><Link to="/platform" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Platform</Link></li>
+                <li><Link to="/generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Generator</Link></li>
+                <li><Link to="/gallery" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Gallery</Link></li>
+                <li><Link to="/portfolios" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Portfolios</Link></li>
+                <li><Link to="/themes" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Themes</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium text-sm mb-4">Resources</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Documentation</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">API</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Templates</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Support</a></li>
+                <li><Link to="/docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Documentation</Link></li>
+                <li><Link to="/resources" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Resources</Link></li>
+                <li><Link to="/api" className="text-sm text-muted-foreground hover:text-foreground transition-colors">API</Link></li>
+                <li><Link to="/templates" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Templates</Link></li>
+                <li><Link to="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Support</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium text-sm mb-4">Company</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Careers</a></li>
-                <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a></li>
+                <li><Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link></li>
+                <li><Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</Link></li>
+                <li><Link to="/careers" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Careers</Link></li>
+                <li><Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</Link></li>
               </ul>
             </div>
           </div>
@@ -52,7 +55,7 @@ export function FooterSection() {
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-16 pt-8 border-t border-border/30">
           <p className="text-xs text-muted-foreground">
-            © 2024 EXHIBIT. All rights reserved.
+            © 2025 Ezra Blackwood. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">

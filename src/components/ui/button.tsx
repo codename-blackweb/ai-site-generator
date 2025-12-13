@@ -16,9 +16,9 @@ const buttonVariants = cva(
         ghost: "hover:bg-secondary hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         // EXHIBIT custom variants
-        coral: "bg-gradient-to-br from-primary to-exhibit-coral-muted text-primary-foreground font-medium hover:shadow-glow hover:-translate-y-0.5",
+        coral: "bg-gradient-to-br from-primary to-exhibit-coral-muted text-white font-medium hover:shadow-glow hover:-translate-y-0.5",
         glass: "glass-panel text-foreground hover:bg-secondary/60 hover:border-primary/20",
-        hero: "bg-gradient-to-br from-primary to-exhibit-coral-muted text-primary-foreground font-medium text-base px-8 py-6 hover:shadow-glow hover:-translate-y-1",
+        hero: "bg-gradient-to-br from-primary to-exhibit-coral-muted text-white font-medium text-base px-8 py-6 border-2 border-white/70 hover:border-white hover:shadow-glow hover:-translate-y-1",
         "hero-outline": "border border-foreground/20 bg-transparent text-foreground font-medium text-base px-8 py-6 hover:bg-foreground/5 hover:border-foreground/40",
       },
       size: {

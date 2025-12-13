@@ -1,92 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Eye, ExternalLink, Calendar, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, ExternalLink, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useProjects, type Project } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
-import { ProjectDetailModal } from "@/components/ProjectDetailModal";
+import { getUserWebsites } from "@/hooks/useWebsites";
+import { easeOut } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 
 const placeholderImages = [
   "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop",
   "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
   "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop",
   "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop",
-];
-
-const mockProjects = [
-  {
-    id: "mock-1",
-    title: "Meridian Studio",
-    description: "A creative agency landing page with bold typography and smooth animations",
-    industry: "Creative Agency",
-    created_at: "2024-12-01",
-    preview_image_url: placeholderImages[0],
-  },
-  {
-    id: "mock-2",
-    title: "Fintech Pro",
-    description: "Modern financial services platform with trust-building design",
-    industry: "Finance",
-    created_at: "2024-12-05",
-    preview_image_url: placeholderImages[1],
-  },
-  {
-    id: "mock-3",
-    title: "Verde Health",
-    description: "Clean healthcare provider website focused on patient care",
-    industry: "Healthcare",
-    created_at: "2024-11-20",
-    preview_image_url: placeholderImages[2],
-  },
 ];
 
 export function GallerySection() {
   const { user } = useAuth();
-  const { data: userProjects, isLoading } = useProjects();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [websites, setWebsites] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Combine user projects with mock projects for display
-  const displayProjects = user && userProjects?.length 
-    ? userProjects.map((p, i) => ({
-        ...p,
-        preview_image_url: p.preview_image_url || placeholderImages[i % placeholderImages.length],
-      }))
-    : mockProjects;
+  useEffect(() => {
+    async function load() {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const data = await getUserWebsites(user.id);
+        setWebsites(
+          data.map((w, i) => ({
+            ...w,
+            preview_image_url: w.thumbnail_url || placeholderImages[i % placeholderImages.length],
+          }))
+        );
+      } catch (e) {
+        console.error("Failed loading websites:", e);
+      }
+      setLoading(false);
+    }
+    load();
+  }, [user]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.1,
-      },
-    },
-  };
+  const displayItems = user && websites.length > 0
+    ? websites
+    : [
+        {
+          id: "sample-1",
+          title: "Sample Portfolio",
+          description: "A placeholder sample project.",
+          created_at: new Date().toISOString(),
+          preview_image_url: placeholderImages[0],
+          is_public: true,
+        },
+      ];
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.42,
-        ease: "easeOut" as const,
-      },
+      transition: { duration: 0.42, ease: easeOut },
     },
   };
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
 
   return (
     <section id="gallery" className="py-32 relative">
       <div className="container px-6">
-        {/* Section header */}
-        <motion.div 
+        <motion.div
           className="max-w-3xl mb-20"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -94,75 +80,78 @@ export function GallerySection() {
           transition={{ duration: 0.42, ease: "easeOut" }}
         >
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mb-6">
-            Featured Samples
+            Featured Websites
           </h2>
           <p className="text-muted-foreground text-lg">
-            {user 
-              ? "Your curated collection of websites. Each piece is a fully functional, production-ready creation."
-              : "A curated collection of sample websites. Sign in to create and save your own."}
+            {user
+              ? "Your curated library of generated websites."
+              : "Sign in to generate and save your own website creations."}
           </p>
         </motion.div>
 
-        {isLoading ? (
+        {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[280px]"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
           >
-            {displayProjects.map((project, index) => {
-              const isLarge = index === 0 || index === 3;
-              const gridClass = isLarge 
-                ? index === 0 
-                  ? "md:col-span-8 md:row-span-2" 
-                  : "md:col-span-7 md:row-span-2"
+            {displayItems.map((item, index) => {
+              const isLarge = index % 3 === 0;
+              const gridClass = isLarge
+                ? "md:col-span-8 md:row-span-2"
                 : "md:col-span-4";
+              const previewImage = item.preview_image_url || item.thumbnail_url || placeholderImages[index % placeholderImages.length];
+              const createdLabel = item.created_at
+                ? getRelativeTime(new Date(item.created_at))
+                : "Generated recently";
 
               return (
                 <motion.article
-                  key={project.id}
+                  key={item.id}
                   variants={itemVariants}
                   className={`group relative rounded-2xl overflow-hidden exhibit-card cursor-pointer ${gridClass}`}
-                  onMouseEnter={() => setHoveredId(project.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  onClick={() => 'generated_content' in project && setSelectedProject(project as Project)}
-                  whileHover={{ y: -4, transition: { duration: 0.24, ease: "easeOut" } }}
+                  whileHover={{
+                    y: -4,
+                    transition: { duration: 0.24, ease: easeOut },
+                  }}
                 >
-                  {/* Background image */}
-                  <div 
+                  <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-                    style={{ backgroundImage: `url(${project.preview_image_url})` }}
+                    style={{
+                      backgroundImage: previewImage ? `url(${previewImage})` : undefined,
+                      backgroundColor: "rgba(255,255,255,0.02)",
+                    }}
                   />
-                  
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-slow" />
-                  
-                  {/* Category badge */}
-                  <div className="absolute top-4 left-4 glass-panel rounded-full px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium">
-                    <span className="text-xs text-foreground/80">{project.industry || 'Website'}</span>
-                  </div>
+                  {!previewImage && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-exhibit-teal/10 to-background animate-pulse" />
+                  )}
 
-                  {/* Content */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
                   <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-                    <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-slow ease-exhibit">
-                      <h3 className="font-display text-xl md:text-2xl lg:text-3xl mb-2">
-                        {project.title}
-                      </h3>
-                      <p className={`text-muted-foreground text-sm md:text-base line-clamp-2 ${
-                        hoveredId === project.id ? 'opacity-100' : 'opacity-0'
-                      } transition-opacity duration-medium`}>
-                        {project.description}
-                      </p>
-                      
-                      {/* Actions - visible on hover */}
-                      <div className={`flex items-center gap-3 mt-4 ${
-                        hoveredId === project.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                      } transition-all duration-medium`}>
+                    <h3 className="font-display text-xl md:text-2xl lg:text-3xl mb-2">
+                      {item.title}
+                    </h3>
+
+                    <p className="text-muted-foreground text-sm md:text-base line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {item.description || "Generated website"}
+                    </p>
+
+                    <div className="flex items-center gap-3 mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Badge variant="secondary" className="bg-background/70 border border-border/50">
+                        {item.is_public ? "Published" : "Draft"}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {createdLabel}
+                      </span>
+                      <div className="ml-auto flex items-center gap-2">
                         <Button variant="coral" size="sm">
                           <Eye className="w-4 h-4" />
                           View
@@ -171,10 +160,6 @@ export function GallerySection() {
                           <ExternalLink className="w-4 h-4" />
                           Open
                         </Button>
-                        <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(project.created_at)}
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -184,31 +169,31 @@ export function GallerySection() {
           </motion.div>
         )}
 
-        {/* View all link */}
-        <motion.div 
+        <motion.div
           className="text-center mt-16"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
           transition={{ duration: 0.42, delay: 0.2, ease: "easeOut" }}
         >
           <a href="#generator">
             <Button variant="outline" size="lg" className="group">
-              Create Your Own
+              Create a Website
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </a>
         </motion.div>
       </div>
-
-      {/* Project Detail Modal */}
-      {selectedProject && (
-        <ProjectDetailModal
-          project={selectedProject}
-          isOpen={!!selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
-      )}
     </section>
   );
+}
+
+function getRelativeTime(date: Date) {
+  const diff = Date.now() - date.getTime();
+  const minutes = Math.round(diff / 60000);
+  if (minutes < 1) return "Generated just now";
+  if (minutes < 60) return `Generated ${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `Generated ${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.round(hours / 24);
+  return `Generated ${days} day${days === 1 ? "" : "s"} ago`;
 }

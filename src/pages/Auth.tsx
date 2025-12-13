@@ -92,8 +92,6 @@ export default function Auth() {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 mesh-gradient" />
         <div className="relative z-10 flex flex-col justify-between p-12">
-          <img src={exhibitLogo} alt="EXHIBIT" className="h-10 w-auto" />
-          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

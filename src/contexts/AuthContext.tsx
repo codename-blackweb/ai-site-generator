@@ -18,9 +18,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // --- AUTH STATE LISTENER ---
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -36,26 +37,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // --- SIGN UP WITH PROFILE CREATION ---
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    const { error } = await supabase.auth.signUp({
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: { full_name: fullName },
       },
     });
-    return { error: error as Error | null };
+
+    if (error) return { error: error as Error | null };
+
+    // Insert the user profile after signup (critical)
+    if (data.user) {
+      await supabase.from("profiles").insert({
+        id: data.user.id,
+        username: fullName || email.split("@")[0],
+        avatar_url: null,
+        bio: null,
+      });
+    }
+
+    return { error: null };
   };
 
+  // --- SIGN IN ---
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error as Error | null };
   };
 
+  // --- SIGN OUT ---
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
   };
 
   return (

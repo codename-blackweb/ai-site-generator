@@ -14,176 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
-      client_portfolios: {
-        Row: {
-          accent_color: string | null
-          client_logo_url: string | null
-          client_name: string | null
-          created_at: string
-          id: string
-          introduction: string | null
-          is_public: boolean | null
-          slug: string
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          accent_color?: string | null
-          client_logo_url?: string | null
-          client_name?: string | null
-          created_at?: string
-          id?: string
-          introduction?: string | null
-          is_public?: boolean | null
-          slug: string
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          accent_color?: string | null
-          client_logo_url?: string | null
-          client_name?: string | null
-          created_at?: string
-          id?: string
-          introduction?: string | null
-          is_public?: boolean | null
-          slug?: string
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      portfolio_projects: {
-        Row: {
-          created_at: string
-          display_order: number | null
-          id: string
-          portfolio_id: string
-          project_id: string
-        }
-        Insert: {
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          portfolio_id: string
-          project_id: string
-        }
-        Update: {
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          portfolio_id?: string
-          project_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "portfolio_projects_portfolio_id_fkey"
-            columns: ["portfolio_id"]
-            isOneToOne: false
-            referencedRelation: "client_portfolios"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "portfolio_projects_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
-          created_at: string
-          email: string | null
-          full_name: string | null
+          bio: string | null
+          created_at: string | null
           id: string
-          updated_at: string
-          user_id: string
+          updated_at: string | null
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
-          created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id?: string
-          updated_at?: string
-          user_id: string
+          bio?: string | null
+          created_at?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
-          created_at?: string
-          email?: string | null
-          full_name?: string | null
+          bio?: string | null
+          created_at?: string | null
           id?: string
-          updated_at?: string
-          user_id?: string
+          updated_at?: string | null
+          username?: string | null
         }
         Relationships: []
       }
-      projects: {
+      websites: {
         Row: {
-          brand_tone: string | null
-          color_preferences: string | null
-          created_at: string
-          description: string | null
-          generated_content: Json | null
+          created_at: string | null
           id: string
-          industry: string | null
-          is_archived: boolean | null
           is_public: boolean | null
-          layout_type: string | null
-          preview_image_url: string | null
-          primary_goal: string | null
-          project_type: string | null
-          status: string | null
-          target_audience: string | null
-          title: string
-          updated_at: string
+          json_data: Json | null
+          slug: string | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
-          brand_tone?: string | null
-          color_preferences?: string | null
-          created_at?: string
-          description?: string | null
-          generated_content?: Json | null
+          created_at?: string | null
           id?: string
-          industry?: string | null
-          is_archived?: boolean | null
           is_public?: boolean | null
-          layout_type?: string | null
-          preview_image_url?: string | null
-          primary_goal?: string | null
-          project_type?: string | null
-          status?: string | null
-          target_audience?: string | null
-          title: string
-          updated_at?: string
+          json_data?: Json | null
+          slug?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
-          brand_tone?: string | null
-          color_preferences?: string | null
-          created_at?: string
-          description?: string | null
-          generated_content?: Json | null
+          created_at?: string | null
           id?: string
-          industry?: string | null
-          is_archived?: boolean | null
           is_public?: boolean | null
-          layout_type?: string | null
-          preview_image_url?: string | null
-          primary_goal?: string | null
-          project_type?: string | null
-          status?: string | null
-          target_audience?: string | null
-          title?: string
-          updated_at?: string
+          json_data?: Json | null
+          slug?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
