@@ -39,20 +39,19 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
+      staggerChildren: 0.07,
       delayChildren: 0.1,
     },
   },
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.5,
+      duration: 0.42,
       ease: "easeOut" as const,
     },
   },
@@ -60,17 +59,24 @@ const cardVariants = {
 
 export function FeaturesSection() {
   return (
-    <section className="py-32 relative overflow-hidden">
+    <motion.section 
+      id="features"
+      className="py-32 relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.42 }}
+    >
       {/* Subtle background accent */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
       
       <div className="relative container px-6">
         <motion.div 
           className="text-center mb-20"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
         >
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mb-6">
             Built for creators
@@ -92,8 +98,8 @@ export function FeaturesSection() {
             <motion.div 
               key={feature.title}
               variants={cardVariants}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className="group glass-panel rounded-2xl p-8 hover:bg-secondary/40 transition-colors duration-slow"
+              whileHover={{ y: -2, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
+              className="group glass-panel rounded-2xl p-8 hover:bg-secondary/40 transition-colors duration-300"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors duration-medium">
                 <feature.icon className="w-6 h-6 text-primary" />
@@ -106,6 +112,6 @@ export function FeaturesSection() {
           ))}
         </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

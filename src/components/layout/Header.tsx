@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,15 +9,20 @@ export function Header() {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
+    <motion.header 
+      className="fixed top-0 left-0 right-0 z-50"
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+    >
       <div className="glass-panel mx-4 mt-4 rounded-2xl">
-        <div className="container flex items-center justify-between h-16 px-6">
+        <div className="container flex items-center justify-between h-24 px-6">
           <div className="flex items-center gap-3">
             <Link to="/">
               <img 
                 src={exhibitLogo} 
                 alt="EXHIBIT" 
-                className="h-8 w-auto object-contain"
+                className="h-14 md:h-16 w-auto object-contain"
               />
             </Link>
           </div>
@@ -54,6 +60,6 @@ export function Header() {
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }

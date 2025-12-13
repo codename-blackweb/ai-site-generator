@@ -1,9 +1,30 @@
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function CTASection() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartCreating = () => {
+    if (user) {
+      document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/auth');
+    }
+  };
+
   return (
-    <section id="portfolio" className="py-32 relative overflow-hidden">
+    <motion.section 
+      id="portfolio" 
+      className="py-32 relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+    >
       {/* Mesh gradient background */}
       <div className="absolute inset-0 mesh-gradient" />
       
@@ -12,7 +33,13 @@ export function CTASection() {
       <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-exhibit-teal/10 rounded-full blur-[100px]" />
       
       <div className="relative container px-6">
-        <div className="max-w-3xl mx-auto text-center">
+        <motion.div 
+          className="max-w-3xl mx-auto text-center"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mb-6">
             Ready to exhibit <br />
             <span className="gradient-text">your best work?</span>
@@ -22,21 +49,40 @@ export function CTASection() {
             with the polish and professionalism it deserves.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="hero" size="lg" className="group">
-              Start Free Trial
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.32, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Button 
+              variant="hero" 
+              size="lg" 
+              className="group"
+              onClick={handleStartCreating}
+            >
+              Start Creating
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Button>
-            <Button variant="hero-outline" size="lg">
-              Schedule Demo
-            </Button>
-          </div>
+            <a href="#features">
+              <Button variant="hero-outline" size="lg">
+                Learn More
+              </Button>
+            </a>
+          </motion.div>
           
-          <p className="text-sm text-muted-foreground mt-8">
+          <motion.p 
+            className="text-sm text-muted-foreground mt-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.32, delay: 0.2 }}
+          >
             No credit card required · Cancel anytime
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
