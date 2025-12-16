@@ -14,7 +14,7 @@ export const handler: Handler = async (event) => {
     statusCode: 200,
     body: JSON.stringify({
       ok: true,
-      message: "Generator function is alive",
+      message: "generate-website function is alive",
     }),
   };
 };
