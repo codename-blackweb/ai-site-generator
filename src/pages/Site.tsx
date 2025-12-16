@@ -102,6 +102,18 @@ export default function Site() {
     }
   };
 
+  const primaryTarget =
+    (content.cta?.headline && "site-cta") ||
+    (content.features && content.features.length > 0 && "site-features") ||
+    (content.about?.title && "site-about") ||
+    "site-about";
+
+  const secondaryTarget =
+    (content.features && content.features.length > 0 && "site-features") ||
+    (content.testimonials && content.testimonials.length > 0 && "site-testimonials") ||
+    (content.cta?.headline && "site-cta") ||
+    "site-about";
+
   if (!slug) return <Navigate to="/" replace />;
 
   if (isLoading) {
@@ -165,14 +177,26 @@ export default function Site() {
             <div className="flex flex-wrap gap-4 pt-4">
               {content.hero.ctaPrimary && (
                 <Button variant="hero" asChild>
-                  <a href="#site-about" onClick={(e) => { e.preventDefault(); scrollToSection("site-about"); }}>
+                  <a
+                    href={`#${primaryTarget}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(primaryTarget);
+                    }}
+                  >
                     {content.hero.ctaPrimary}
                   </a>
                 </Button>
               )}
               {content.hero.ctaSecondary && (
                 <Button variant="hero-outline" asChild>
-                  <a href="#site-features" onClick={(e) => { e.preventDefault(); scrollToSection("site-features"); }}>
+                  <a
+                    href={`#${secondaryTarget}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(secondaryTarget);
+                    }}
+                  >
                     {content.hero.ctaSecondary}
                   </a>
                 </Button>
