@@ -93,6 +93,15 @@ export default function Site() {
     [website?.json_data],
   );
 
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.location.hash = `#${id}`;
+    }
+  };
+
   if (!slug) return <Navigate to="/" replace />;
 
   if (isLoading) {
@@ -155,12 +164,12 @@ export default function Site() {
 
             <div className="flex flex-wrap gap-4 pt-4">
               {content.hero.ctaPrimary && (
-                <Button variant="hero">
+                <Button variant="hero" onClick={() => scrollToSection("site-about")}>
                   {content.hero.ctaPrimary}
                 </Button>
               )}
               {content.hero.ctaSecondary && (
-                <Button variant="hero-outline">
+                <Button variant="hero-outline" onClick={() => scrollToSection("site-features")}>
                   {content.hero.ctaSecondary}
                 </Button>
               )}
@@ -171,7 +180,7 @@ export default function Site() {
 
       <main className="container px-6 py-16 space-y-20">
         {content.about?.title && (
-          <section className="grid md:grid-cols-2 gap-12 items-center">
+          <section id="site-about" className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="font-display text-3xl md:text-4xl mb-4">{content.about.title}</h2>
               {content.about.description && (
@@ -183,7 +192,7 @@ export default function Site() {
         )}
 
         {content.features && content.features.length > 0 && (
-          <section>
+          <section id="site-features">
             <h3 className="font-display text-2xl mb-6">Highlights</h3>
             <div className="grid md:grid-cols-3 gap-6">
               {content.features.map((feature, idx) => (
@@ -199,7 +208,7 @@ export default function Site() {
         )}
 
         {content.testimonials && content.testimonials.length > 0 && (
-          <section>
+          <section id="site-testimonials">
             <h3 className="font-display text-2xl mb-6">What people say</h3>
             <div className="grid md:grid-cols-2 gap-6">
               {content.testimonials.map((t, idx) => (
@@ -215,7 +224,7 @@ export default function Site() {
         )}
 
         {content.cta?.headline && (
-          <section className="text-center space-y-4 glass-panel rounded-2xl p-10 border border-border/40">
+          <section id="site-cta" className="text-center space-y-4 glass-panel rounded-2xl p-10 border border-border/40">
             <h3 className="font-display text-3xl">{content.cta.headline}</h3>
             {content.cta.description && (
               <p className="text-muted-foreground max-w-2xl mx-auto">{content.cta.description}</p>
