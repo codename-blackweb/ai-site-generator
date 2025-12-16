@@ -55,6 +55,13 @@ export function GeneratorSection({ templatePreset }: GeneratorSectionProps) {
       return;
     }
 
+    if (!formData.projectName.trim() || !formData.goal.trim()) {
+      const message = "Please add a project name and goal before generating.";
+      setErrorMessage(message);
+      toast.error(message);
+      return;
+    }
+
     if (!user) {
       toast.error("Please sign in to generate a website.");
       return;

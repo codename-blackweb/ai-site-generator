@@ -18,6 +18,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Resolve the URL we should send users back to after email confirmation.
+  const configuredSiteUrl = import.meta.env.VITE_SITE_URL as string | undefined;
+  const redirectBase = configuredSiteUrl?.trim() || (typeof window !== "undefined" ? window.location.origin : "");
+  const emailRedirectTo = redirectBase ? (redirectBase.endsWith("/") ? redirectBase : `${redirectBase}/`) : undefined;
+
   // --- AUTH STATE LISTENER ---
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -39,13 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // --- SIGN UP WITH PROFILE CREATION ---
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo,
       },
     });
 

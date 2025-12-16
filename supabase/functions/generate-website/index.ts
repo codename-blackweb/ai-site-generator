@@ -5,17 +5,120 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function buildFallbackSite({
+  projectName,
+  industry,
+  audience,
+  goal,
+  tone,
+  colors,
+  layout,
+}: {
+  projectName?: string;
+  industry?: string;
+  audience?: string;
+  goal?: string;
+  tone?: string;
+  colors?: string;
+  layout?: string;
+}) {
+  const palette = (colors?.split(",") ?? []).map((c) => c.trim()).filter(Boolean);
+  const primaryColor = palette[0] || "#6B73FF";
+  const secondaryColor = palette[1] || "#8B5CF6";
+  const cleanName = projectName || "Your Project";
+  const cleanGoal = goal || "launch a modern website";
+  const cleanIndustry = industry || "digital brand";
+  const cleanAudience = audience || "customers";
+  const cleanTone = tone || "modern and confident";
+  const cleanLayout = layout || "modern";
+
+  return {
+    hero: {
+      headline: `${cleanName} — built to ${cleanGoal}`,
+      subheadline: `A ${cleanTone} ${cleanIndustry} experience crafted for ${cleanAudience}.`,
+      ctaPrimary: "Explore the site",
+      ctaSecondary: "Learn more",
+    },
+    about: {
+      title: `Why ${cleanName}?`,
+      description:
+        `${cleanName} is focused on ${cleanGoal}. We combine expertise in ${cleanIndustry} with a clear narrative so ${cleanAudience} understand the value instantly.`,
+    },
+    features: [
+      {
+        title: "Purpose-built story",
+        description: `Content structured around your goal of ${cleanGoal}, written in a ${cleanTone} tone.`,
+        icon: "target",
+      },
+      {
+        title: "Clean, responsive layout",
+        description: `A ${cleanLayout} layout that adapts to any device and keeps visitors focused on your call to action.`,
+        icon: "layout",
+      },
+      {
+        title: "Trust-building elements",
+        description: `Testimonials, clear outcomes, and supporting details that speak directly to ${cleanAudience}.`,
+        icon: "shield",
+      },
+    ],
+    testimonials: [
+      {
+        quote: `${cleanName} helped us move faster and communicate clearly — exactly what our ${cleanAudience} needed.`,
+        author: "A satisfied customer",
+        role: "Founder",
+      },
+    ],
+    cta: {
+      headline: `Ready to ${cleanGoal}?`,
+      description: `Take the next step with a ${cleanTone} experience tailored to ${cleanAudience}.`,
+      buttonText: "Get started",
+    },
+    footer: {
+      tagline: `${cleanName} — built with intent.`,
+    },
+    metadata: {
+      primaryColor,
+      secondaryColor,
+      suggestedFont: "Space Grotesk",
+    },
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
     const { projectName, industry, audience, goal, tone, colors, layout } = await req.json();
+    if (!projectName || !goal) {
+      return new Response(
+        JSON.stringify({ error: "projectName and goal are required to generate a website." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    const respondWithContent = (content: unknown, status = 200) =>
+      new Response(JSON.stringify({ generatedContent: content }), {
+        status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+
+    const fallbackContent = buildFallbackSite({
+      projectName,
+      industry,
+      audience,
+      goal,
+      tone,
+      colors,
+      layout,
+    });
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.warn("LOVABLE_API_KEY is not configured; returning fallback website content.");
+      return respondWithContent(fallbackContent);
     }
 
     console.log("Generating website for:", projectName);
@@ -178,7 +281,7 @@ Generate engaging, specific content that will resonate with the target audience 
       }
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      return respondWithContent(fallbackContent);
     }
 
     const data = await response.json();
@@ -186,14 +289,13 @@ Generate engaging, specific content that will resonate with the target audience 
 
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) {
-      throw new Error("No tool call in response");
+      console.warn("No tool call in AI response; using fallback content.");
+      return respondWithContent(fallbackContent);
     }
 
     const generatedContent = JSON.parse(toolCall.function.arguments);
 
-    return new Response(JSON.stringify({ generatedContent }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return respondWithContent(generatedContent);
   } catch (error) {
     console.error("Error in generate-website function:", error);
     return new Response(

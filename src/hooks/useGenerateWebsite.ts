@@ -24,6 +24,10 @@ export function useGenerateWebsite() {
 
       if (fnError) throw fnError;
 
+      if ((data as any)?.error) {
+        throw new Error((data as any).error);
+      }
+
       const generated = (data as any)?.generatedContent;
       if (!generated) {
         throw new Error("No website content was returned from the generator.");
