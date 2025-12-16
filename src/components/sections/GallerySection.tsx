@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getUserWebsites } from "@/hooks/useWebsites";
 import { easeOut } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const placeholderImages = [
   "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop",
@@ -18,6 +20,7 @@ export function GallerySection() {
   const { user } = useAuth();
   const [websites, setWebsites] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function load() {
@@ -110,12 +113,27 @@ const containerVariants = {
               const createdLabel = item.created_at
                 ? getRelativeTime(new Date(item.created_at))
                 : "Generated recently";
+              const hasSlug = Boolean((item as any).slug);
+
+              const handleOpen = (target?: "_blank") => {
+                if (!hasSlug) {
+                  toast.error("This site does not have a preview link yet.");
+                  return;
+                }
+                const path = `/site/${(item as any).slug}`;
+                if (target === "_blank") {
+                  window.open(path, "_blank", "noreferrer");
+                } else {
+                  navigate(path);
+                }
+              };
 
               return (
                 <motion.article
                   key={item.id}
                   variants={itemVariants}
                   className={`group relative rounded-2xl overflow-hidden exhibit-card cursor-pointer ${gridClass}`}
+                  onClick={() => handleOpen()}
                   whileHover={{
                     y: -4,
                     transition: { duration: 0.24, ease: easeOut },
@@ -152,11 +170,25 @@ const containerVariants = {
                         {createdLabel}
                       </span>
                       <div className="ml-auto flex items-center gap-2">
-                        <Button variant="coral" size="sm">
+                        <Button
+                          variant="coral"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpen();
+                          }}
+                        >
                           <Eye className="w-4 h-4" />
                           View
                         </Button>
-                        <Button variant="glass" size="sm">
+                        <Button
+                          variant="glass"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpen("_blank");
+                          }}
+                        >
                           <ExternalLink className="w-4 h-4" />
                           Open
                         </Button>
