@@ -164,13 +164,17 @@ export default function Site() {
 
             <div className="flex flex-wrap gap-4 pt-4">
               {content.hero.ctaPrimary && (
-                <Button variant="hero" onClick={() => scrollToSection("site-about")}>
-                  {content.hero.ctaPrimary}
+                <Button variant="hero" asChild>
+                  <a href="#site-about" onClick={(e) => { e.preventDefault(); scrollToSection("site-about"); }}>
+                    {content.hero.ctaPrimary}
+                  </a>
                 </Button>
               )}
               {content.hero.ctaSecondary && (
-                <Button variant="hero-outline" onClick={() => scrollToSection("site-features")}>
-                  {content.hero.ctaSecondary}
+                <Button variant="hero-outline" asChild>
+                  <a href="#site-features" onClick={(e) => { e.preventDefault(); scrollToSection("site-features"); }}>
+                    {content.hero.ctaSecondary}
+                  </a>
                 </Button>
               )}
             </div>
