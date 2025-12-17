@@ -31,7 +31,10 @@ export function HeroSection() {
       {/* Background gradient image */}
       <div 
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat pointer-events-none"
-        style={{ backgroundImage: `url(${heroGradient})` }}
+        style={{ 
+          backgroundImage: `url(${heroGradient})`,
+          backgroundPosition: "15% 45%"
+        }}
       />
       
       {/* Overlay for text readability */}
