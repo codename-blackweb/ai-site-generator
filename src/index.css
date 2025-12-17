@@ -167,8 +167,8 @@
 
   /* Force legible hero subheadline color */
   .hero-subheadline {
-    color: #0c2553 !important;
-    text-shadow: 0 0 12px rgba(0, 0, 0, 0.18);
+    color: #020c1f !important;
+    text-shadow: 0 0 16px rgba(0, 0, 0, 0.35);
   }
 }
 
