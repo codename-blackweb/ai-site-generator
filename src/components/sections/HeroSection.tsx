@@ -31,10 +31,7 @@ export function HeroSection() {
       {/* Background gradient image */}
       <div 
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat pointer-events-none"
-        style={{ 
-          backgroundImage: `url(${heroGradient})`,
-          backgroundPosition: "20% center" 
-        }}
+        style={{ backgroundImage: `url(${heroGradient})` }}
       />
       
       {/* Overlay for text readability */}
@@ -69,7 +66,6 @@ export function HeroSection() {
           {/* Subheadline */}
           <motion.p 
             className="hero-subheadline text-lg md:text-xl max-w-2xl mx-auto text-balance"
-            style={{ color: "#020c1f", WebkitTextFillColor: "#020c1f", mixBlendMode: "normal", filter: "none", textShadow: "0 0 16px rgba(0,0,0,0.35)" }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.32, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
