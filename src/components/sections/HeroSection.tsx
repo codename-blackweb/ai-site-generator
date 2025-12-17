@@ -66,7 +66,7 @@ export function HeroSection() {
           {/* Subheadline */}
           <motion.p 
             className="text-lg md:text-xl max-w-2xl mx-auto text-balance"
-            style={{ color: '#0b1a33' }}
+            style={{ color: '#0C2553' }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.32, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
