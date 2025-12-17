@@ -10,8 +10,24 @@ export function GeneratorPage() {
   const template = useMemo(() => (templateSlug ? getTemplateBySlug(templateSlug) : undefined), [templateSlug]);
 
   return (
-    <main className="min-h-[calc(100vh-80px)]">
-      <GeneratorSection templatePreset={template} />
+    <main className="relative min-h-[calc(100vh-80px)] overflow-hidden">
+      {/* Full-viewport background video */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <video
+          className="h-full w-full object-cover"
+          src="https://res.cloudinary.com/dwrdmqonu/video/upload/v1765953115/Video_nzwqfz.mov"
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/75 pointer-events-none" />
+      </div>
+
+      <div className="relative z-10">
+        <GeneratorSection templatePreset={template} />
+      </div>
     </main>
   );
 }
