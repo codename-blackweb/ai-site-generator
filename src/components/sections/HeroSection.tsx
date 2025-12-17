@@ -33,7 +33,7 @@ export function HeroSection() {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat pointer-events-none"
         style={{ 
           backgroundImage: `url(${heroGradient})`,
-          backgroundPosition: "15% 45%"
+          backgroundPosition: "center center"
         }}
       />
       
