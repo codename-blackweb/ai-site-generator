@@ -30,12 +30,12 @@ export function HeroSection() {
     >
       {/* Background gradient image */}
       <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat pointer-events-none"
         style={{ backgroundImage: `url(${heroGradient})` }}
       />
       
       {/* Overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background pointer-events-none" />
       
       {/* Content */}
       <div className="relative z-10 container px-6 pt-32 pb-24">
@@ -65,7 +65,8 @@ export function HeroSection() {
           
           {/* Subheadline */}
           <motion.p 
-            className="text-lg md:text-xl text-[#0b1a33] max-w-2xl mx-auto text-balance"
+            className="text-lg md:text-xl max-w-2xl mx-auto text-balance"
+            style={{ color: '#0b1a33' }}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.32, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
