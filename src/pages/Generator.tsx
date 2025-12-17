@@ -10,9 +10,9 @@ export function GeneratorPage() {
   const template = useMemo(() => (templateSlug ? getTemplateBySlug(templateSlug) : undefined), [templateSlug]);
 
   return (
-    <main className="relative min-h-[calc(100vh-80px)] overflow-hidden">
+    <main className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-black">
       {/* Full-viewport background video */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <video
           className="h-full w-full object-cover"
           src="https://res.cloudinary.com/dwrdmqonu/video/upload/v1765953115/Video_nzwqfz.mov"
