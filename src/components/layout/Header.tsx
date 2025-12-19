@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -9,6 +9,17 @@ export function Header() {
     user,
     signOut
   } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (id: string) => {
+    if (location.pathname !== "/") {
+      navigate("/", { state: { scrollTo: id } });
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return <motion.header className="fixed top-0 left-0 right-0 z-50" initial={{
     opacity: 0,
     y: -12
@@ -34,14 +45,37 @@ export function Header() {
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
               Home
             </Link>
-            <Link to="/generator" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+            <button
+              type="button"
+              onClick={() => scrollToSection("generator")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium"
+            >
               Generator
-            </Link>
-            <Link to="/gallery" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("gallery")}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium"
+            >
               Gallery
+            </button>
+            {user ? (
+              <Link
+                to={`/portfolio/${user.user_metadata?.username || user.id}`}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium"
+              >
+                Portfolio
+              </Link>
+            ) : (
+              <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+                Portfolio
+              </Link>
+            )}
+            <Link to="/themes" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+              Themes
             </Link>
-            <Link to="/portfolios" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
-              Portfolio
+            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-medium">
+              Blog
             </Link>
           </nav>
 
