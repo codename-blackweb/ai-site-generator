@@ -13,7 +13,7 @@ export default function GallerySection() {
         title: site.title || "Generated website",
         image: site.thumbnail_url,
         href: site.slug ? `/site/${site.slug}` : undefined,
-        subtitle: "Generated website",
+        subtitle: site.slug ? "View live site" : "Generated website",
       }))
     : TEMPLATES.map((tpl) => ({
         id: tpl.id,
@@ -44,36 +44,47 @@ export default function GallerySection() {
             ))}
 
           {!isLoading &&
-            galleryItems.map((item) => (
-              <motion.article
-                key={item.id}
-                className="glass-panel rounded-xl overflow-hidden"
-                whileHover={{ y: -4 }}
-              >
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.title ?? "Website thumbnail"}
-                    className="w-full h-48 object-cover"
-                  />
-                ) : (
-                  <div className="h-48 flex items-center justify-center text-muted-foreground">
-                    Generating thumbnail…
-                  </div>
-                )}
-
-                <div className="p-4">
-                  <h3 className="font-medium text-lg">
-                    {item.title}
-                  </h3>
-                  {item.subtitle && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {item.subtitle}
-                    </p>
+            galleryItems.map((item) => {
+              const card = (
+                <motion.article
+                  className="glass-panel rounded-xl overflow-hidden h-full"
+                  whileHover={{ y: -4 }}
+                >
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title ?? "Website thumbnail"}
+                      className="w-full h-48 object-cover"
+                    />
+                  ) : (
+                    <div className="h-48 flex items-center justify-center text-muted-foreground">
+                      Generating thumbnail…
+                    </div>
                   )}
+
+                  <div className="p-4">
+                    <h3 className="font-medium text-lg">
+                      {item.title}
+                    </h3>
+                    {item.subtitle && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {item.subtitle}
+                      </p>
+                    )}
+                  </div>
+                </motion.article>
+              );
+
+              return item.href ? (
+                <a key={item.id} href={item.href} className="block h-full">
+                  {card}
+                </a>
+              ) : (
+                <div key={item.id} className="h-full">
+                  {card}
                 </div>
-              </motion.article>
-            ))}
+              );
+            })}
         </div>
       </div>
     </section>
