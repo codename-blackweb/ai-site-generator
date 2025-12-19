@@ -33,12 +33,12 @@ export function HeroSection() {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat pointer-events-none"
         style={{ 
           backgroundImage: `url(${heroGradient})`,
-          backgroundPosition: "center center"
+          backgroundPosition: "center 70%"
         }}
       />
       
       {/* Overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/10 to-background/80 pointer-events-none" />
       
       {/* Content */}
       <div className="relative z-10 container px-6 pt-32 pb-24">
