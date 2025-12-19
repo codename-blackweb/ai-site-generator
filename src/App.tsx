@@ -8,6 +8,7 @@ import NotFound from "@/pages/NotFound";
 import ThemesPage from "@/pages/Themes";
 import BlogPage from "@/pages/Blog";
 import BlogPostPage from "@/pages/BlogPost";
+import GalleryPage from "@/pages/Gallery";
 import { Header } from "@/components/layout/Header";
 
 function PageShell({ children }: { children: React.ReactNode }) {
@@ -43,6 +44,14 @@ export default function App() {
           element={
             <PageShell>
               <ThemesPage />
+            </PageShell>
+          }
+        />
+        <Route
+          path="/gallery"
+          element={
+            <PageShell>
+              <GalleryPage />
             </PageShell>
           }
         />

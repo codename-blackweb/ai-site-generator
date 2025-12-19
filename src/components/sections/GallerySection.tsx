@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useClientPortfolios } from "@/hooks/useClientPortfolios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TEMPLATES } from "@/data/templates";
+import heroGradient from "@/assets/hero-gradient.jpg";
 
 export default function GallerySection() {
   const { portfolios, isLoading } = useClientPortfolios();
@@ -11,14 +12,14 @@ export default function GallerySection() {
     ? portfolios.map((site) => ({
         id: site.id,
         title: site.title || "Generated website",
-        image: site.thumbnail_url,
+        image: site.thumbnail_url || heroGradient,
         href: site.slug ? `/site/${site.slug}` : undefined,
         subtitle: site.slug ? "View live site" : "Generated website",
       }))
     : TEMPLATES.map((tpl) => ({
         id: tpl.id,
         title: tpl.name,
-        image: tpl.featureImage?.src,
+        image: tpl.featureImage?.src || heroGradient,
         href: `/templates/${tpl.slug}`,
         subtitle: tpl.category || "Theme",
       }));

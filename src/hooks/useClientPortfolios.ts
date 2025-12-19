@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 export function useClientPortfolios() {
   const query = useQuery({
     queryKey: ["websites", "public"],
+    retry: false,
+    refetchOnWindowFocus: false,
     staleTime: 1000 * 60, // 1 minute
     queryFn: async () => {
       const { data, error } = await supabase
