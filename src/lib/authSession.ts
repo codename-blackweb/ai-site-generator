@@ -18,3 +18,9 @@ export const buildAuthHeaders = async (baseHeaders: Record<string, string> = {})
     token,
   };
 };
+
+export const getAuthHeader = async () => {
+  const token = await getAccessToken();
+  if (!token) return {};
+  return { Authorization: `Bearer ${token}` };
+};
