@@ -23,7 +23,7 @@ const fromBase64Url = (value: string) => {
 
 export type DeployStatePayload = {
   siteId: string;
-  userId?: string;
+  userId: string;
   ts: number;
   returnTo?: string;
 };
@@ -53,7 +53,7 @@ export const verifyState = (state: string, maxAgeMs = 10 * 60 * 1000) => {
     return null;
   }
 
-  if (!payload?.siteId || !payload?.ts) return null;
+  if (!payload?.siteId || !payload?.userId || !payload?.ts) return null;
   if (Date.now() - payload.ts > maxAgeMs) return null;
 
   return payload;

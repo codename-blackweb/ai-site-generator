@@ -8,6 +8,7 @@ import type {
   PrescriptiveMeta,
   PrescriptiveIntent,
 } from "@/lib/chatTypes";
+import { buildAuthHeaders } from "@/lib/authSession";
 
 type Handler = (payload: unknown) => void;
 
@@ -95,9 +96,10 @@ export function createHttpChatAdapter(baseUrl: string, context: { siteId: string
     if (prescriptiveEnabled) body.prescriptive = true;
 
     try {
+      const auth = await buildAuthHeaders({ "content-type": "application/json" });
       const response = await fetch(baseUrl, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: auth.headers,
         body: JSON.stringify(body),
         signal: controller.signal,
       });

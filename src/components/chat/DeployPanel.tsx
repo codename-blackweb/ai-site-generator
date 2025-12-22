@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, AlertTriangle, XCircle, ClipboardCopy } from "lucide-react";
+import { buildAuthHeaders } from "@/lib/authSession";
 
 const resolveSiteId = () => {
   if (typeof window === "undefined") return "";
@@ -41,7 +42,14 @@ export function DeployPanel() {
     if (!siteId) return;
     setNetlifyChecking(true);
     try {
-      const res = await fetch(`/api/deploy/netlify?siteId=${encodeURIComponent(siteId)}`);
+      const auth = await buildAuthHeaders();
+      if (!auth.token) {
+        setNetlifyConnected(false);
+        return;
+      }
+      const res = await fetch(`/api/deploy/netlify?siteId=${encodeURIComponent(siteId)}`, {
+        headers: auth.headers,
+      });
       const data = (await res.json()) as { connected?: boolean };
       if (res.ok) {
         setNetlifyConnected(!!data.connected);
@@ -68,9 +76,15 @@ export function DeployPanel() {
     setError(null);
     setLoading(true);
     try {
+      const auth = await buildAuthHeaders({ "content-type": "application/json" });
+      if (!auth.token) {
+        setError("Sign in required.");
+        setResult(null);
+        return;
+      }
       const res = await fetch("/api/deploy/readiness", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: auth.headers,
         body: JSON.stringify({ siteId }),
       });
       const data = (await res.json()) as ReadinessResult | { error?: string };
@@ -93,7 +107,7 @@ export function DeployPanel() {
     await navigator.clipboard.writeText(text);
   };
 
-  const handleNetlifyConnect = () => {
+  const handleNetlifyConnect = async () => {
     const siteId = resolveSiteId();
     if (!siteId || typeof window === "undefined") {
       setDeployError("Site ID missing.");
@@ -103,7 +117,21 @@ export function DeployPanel() {
     const url = `/api/deploy/netlify/connect?siteId=${encodeURIComponent(siteId)}&returnTo=${encodeURIComponent(
       returnTo,
     )}`;
-    window.location.assign(url);
+    setDeployError(null);
+    try {
+      const auth = await buildAuthHeaders();
+      if (!auth.token) {
+        throw new Error("Sign in required.");
+      }
+      const res = await fetch(url, { headers: auth.headers });
+      const data = (await res.json()) as { redirectUrl?: string; error?: string };
+      if (!res.ok || !data.redirectUrl) {
+        throw new Error(data.error || "Netlify connect failed");
+      }
+      window.location.assign(data.redirectUrl);
+    } catch (err: any) {
+      setDeployError(err?.message || "Netlify connect failed");
+    }
   };
 
   const handleNetlifyDeploy = async () => {
@@ -116,9 +144,13 @@ export function DeployPanel() {
     setDeployResult(null);
     setDeploying(true);
     try {
+      const auth = await buildAuthHeaders({ "content-type": "application/json" });
+      if (!auth.token) {
+        throw new Error("Sign in required.");
+      }
       const res = await fetch("/api/deploy/netlify", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: auth.headers,
         body: JSON.stringify({ siteId, exportId: siteId }),
       });
       const data = (await res.json()) as {

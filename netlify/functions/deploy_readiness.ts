@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "node:path";
 import { placeholderPatterns } from "../../src/lib/placeholders";
 import { getSectionTemplate } from "../../src/lib/export/sectionComponents";
+import { requireAuth, requireSiteOwner } from "./auth";
 
 const resolveDatabaseUrl = (): string => {
   const rawUrl = process.env.DATABASE_URL?.trim();
@@ -23,7 +24,7 @@ const prisma = new PrismaClient({
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type, authorization",
   "access-control-allow-methods": "POST, OPTIONS",
 };
 
@@ -81,6 +82,12 @@ export const handler: Handler = async (event) => {
 
   const siteId = typeof body.siteId === "string" ? body.siteId.trim() : "";
   if (!siteId) return jsonResponse(400, { error: "siteId is required" });
+
+  const auth = requireAuth(event);
+  if (!auth.ok) return jsonResponse(auth.statusCode, { error: auth.error });
+
+  const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId, { allowClaim: true });
+  if (!siteAccess.ok) return jsonResponse(siteAccess.statusCode, { error: siteAccess.error });
 
   const site = await prisma.site.findUnique({
     where: { id: siteId },

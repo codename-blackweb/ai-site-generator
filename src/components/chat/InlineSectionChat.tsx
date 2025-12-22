@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { renderSectionPreview } from "@/components/chat/sectionPreviewRenderers";
+import { buildAuthHeaders } from "@/lib/authSession";
 
 type InlineSectionChatProps = {
   siteId?: string;
@@ -105,9 +106,10 @@ export function InlineSectionChat({
     setError(null);
 
     try {
+      const auth = await buildAuthHeaders({ "content-type": "application/json" });
       const res = await fetch(apiUrl, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: auth.headers,
         signal: controller.signal,
         body: JSON.stringify({
           siteId: resolvedSiteId || undefined,
@@ -238,9 +240,13 @@ export function InlineSectionChat({
             altText="Undo"
             onClick={async () => {
               try {
+                const auth = await buildAuthHeaders({ "content-type": "application/json" });
+                if (!auth.token) {
+                  throw new Error("Sign in required.");
+                }
                 const undoRes = await fetch(undoUrl, {
                   method: "POST",
-                  headers: { "content-type": "application/json" },
+                  headers: auth.headers,
                   body: JSON.stringify({
                     siteId: resolvedSiteId || undefined,
                     conversationId: resolvedConversationId || undefined,

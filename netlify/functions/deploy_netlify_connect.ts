@@ -1,10 +1,29 @@
 import type { Handler } from "@netlify/functions";
+import { PrismaClient } from "@prisma/client";
+import path from "node:path";
+import { requireAuth, requireSiteOwner } from "./auth";
 import { signState } from "./deploy_netlify_shared";
+
+const resolveDatabaseUrl = (): string => {
+  const rawUrl = process.env.DATABASE_URL?.trim();
+  if (rawUrl && rawUrl.startsWith("file:")) {
+    const filePath = rawUrl.slice("file:".length);
+    if (filePath.startsWith("/")) {
+      return rawUrl;
+    }
+    return `file:${path.resolve(process.cwd(), filePath)}`;
+  }
+  return `file:${path.resolve(process.cwd(), "prisma", "dev.db")}`;
+};
+
+const prisma = new PrismaClient({
+  datasources: { db: { url: resolveDatabaseUrl() } },
+});
 
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type, authorization",
   "access-control-allow-methods": "GET, OPTIONS",
 };
 
@@ -22,9 +41,13 @@ export const handler: Handler = async (event) => {
   const returnToRaw = event.queryStringParameters?.returnTo ?? "";
   const returnTo = returnToRaw.startsWith("/") ? returnToRaw : undefined;
 
-  if (!siteId) {
-    return jsonResponse(400, { error: "siteId is required" });
-  }
+  if (!siteId) return jsonResponse(400, { error: "siteId is required" });
+
+  const auth = requireAuth(event);
+  if (!auth.ok) return jsonResponse(auth.statusCode, { error: auth.error });
+
+  const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId, { allowClaim: true });
+  if (!siteAccess.ok) return jsonResponse(siteAccess.statusCode, { error: siteAccess.error });
 
   const clientId = process.env.NETLIFY_CLIENT_ID;
   if (!clientId) {
@@ -33,7 +56,7 @@ export const handler: Handler = async (event) => {
 
   let state: string;
   try {
-    state = signState({ siteId, ts: Date.now(), returnTo });
+    state = signState({ siteId, userId: auth.session.userId, ts: Date.now(), returnTo });
   } catch (error: any) {
     return jsonResponse(500, { error: error?.message || "Failed to create OAuth state" });
   }
@@ -46,11 +69,5 @@ export const handler: Handler = async (event) => {
 
   const redirectUrl = `https://app.netlify.com/authorize?${params.toString()}`;
 
-  return {
-    statusCode: 302,
-    headers: {
-      location: redirectUrl,
-      "cache-control": "no-store",
-    },
-  };
+  return jsonResponse(200, { redirectUrl });
 };

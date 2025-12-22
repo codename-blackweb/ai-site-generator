@@ -66,9 +66,21 @@ export const handler: Handler = async (event) => {
     return jsonResponse(400, { error: "Invalid state" });
   }
 
-  const site = await prisma.site.findUnique({ where: { id: state.siteId }, select: { id: true } });
+  const site = await prisma.site.findUnique({
+    where: { id: state.siteId },
+    select: { id: true, ownerId: true },
+  });
   if (!site) {
     return jsonResponse(404, { error: "Site not found" });
+  }
+  if (site.ownerId && site.ownerId !== state.userId) {
+    return jsonResponse(403, { error: "unauthorized" });
+  }
+  if (!site.ownerId) {
+    await prisma.site.update({
+      where: { id: site.id },
+      data: { ownerId: state.userId },
+    });
   }
 
   const clientId = process.env.NETLIFY_CLIENT_ID;

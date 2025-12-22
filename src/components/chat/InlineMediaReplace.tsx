@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { UploadCloud, Sparkles } from "lucide-react";
+import { buildAuthHeaders } from "@/lib/authSession";
 
 const resolveSiteId = (siteId?: string) => {
   if (siteId) return siteId;
@@ -32,10 +33,10 @@ export function InlineMediaReplace({
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const attachAsset = async (resolvedSiteId: string, assetId: string) => {
+  const attachAsset = async (resolvedSiteId: string, assetId: string, authHeaders: Record<string, string>) => {
     const attachResp = await fetch("/api/media/attach", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: authHeaders,
       body: JSON.stringify({
         siteId: resolvedSiteId,
         sectionId: sectionInstanceId,
@@ -71,9 +72,15 @@ export function InlineMediaReplace({
         throw new Error("Site ID missing");
       }
 
+      const auth = await buildAuthHeaders();
+      if (!auth.token) {
+        throw new Error("Sign in required");
+      }
+      const jsonHeaders = { ...auth.headers, "content-type": "application/json" };
+
       const uploadResp = await fetch("/api/media/upload-url", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: jsonHeaders,
         body: JSON.stringify({
           siteId: resolvedSiteId,
           mime: file.type,
@@ -92,9 +99,10 @@ export function InlineMediaReplace({
         assetId: string;
       };
 
+      const uploadHeaders = { ...auth.headers, "content-type": file.type };
       const putResp = await fetch(uploadData.uploadUrl, {
         method: "PUT",
-        headers: { "content-type": file.type },
+        headers: uploadHeaders,
         body: file,
       });
 
@@ -104,7 +112,7 @@ export function InlineMediaReplace({
 
       const registerResp = await fetch("/api/media/register", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: jsonHeaders,
         body: JSON.stringify({
           siteId: resolvedSiteId,
           role: "hero",
@@ -120,7 +128,7 @@ export function InlineMediaReplace({
       }
 
       const registerData = (await registerResp.json()) as { asset: { id: string } };
-      await attachAsset(resolvedSiteId, registerData.asset.id);
+      await attachAsset(resolvedSiteId, registerData.asset.id, jsonHeaders);
     } catch (err: any) {
       setError(err?.message || "Upload failed");
     } finally {
@@ -137,9 +145,15 @@ export function InlineMediaReplace({
         throw new Error("Site ID missing");
       }
 
+      const auth = await buildAuthHeaders();
+      if (!auth.token) {
+        throw new Error("Sign in required");
+      }
+      const jsonHeaders = { ...auth.headers, "content-type": "application/json" };
+
       const generateResp = await fetch("/api/media/generate", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: jsonHeaders,
         body: JSON.stringify({
           siteId: resolvedSiteId,
           role: "hero",
@@ -152,7 +166,7 @@ export function InlineMediaReplace({
         throw new Error(generateData.error || "Generation failed");
       }
 
-      await attachAsset(resolvedSiteId, generateData.asset.id);
+      await attachAsset(resolvedSiteId, generateData.asset.id, jsonHeaders);
     } catch (err: any) {
       setError(err?.message || "Generation failed");
     } finally {

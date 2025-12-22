@@ -12,6 +12,7 @@ import { writeSiteMedia } from "../../src/lib/export/writeSiteMedia";
 import { generateSiteMedia, type SiteMedia, type SiteMediaAsset } from "../../src/lib/media";
 import type { DesignIntent } from "../../src/lib/designIntent";
 import type { VisualSystem } from "../../src/lib/visualSystem";
+import { requireAuth, requireSiteOwner } from "./auth";
 
 const EXPORT_ROOT = "/tmp/exports";
 
@@ -36,7 +37,7 @@ const prisma = new PrismaClient({
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type, authorization",
   "access-control-allow-methods": "POST, OPTIONS",
 };
 
@@ -189,6 +190,12 @@ export const handler: Handler = async (event) => {
   if (!siteId) {
     return jsonResponse(400, { error: "siteId is required" });
   }
+
+  const auth = requireAuth(event);
+  if (!auth.ok) return jsonResponse(auth.statusCode, { error: auth.error });
+
+  const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId, { allowClaim: true });
+  if (!siteAccess.ok) return jsonResponse(siteAccess.statusCode, { error: siteAccess.error });
 
   const target = body.target === "vite-react" || !body.target ? "vite-react" : null;
   if (!target) {

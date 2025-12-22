@@ -13,6 +13,7 @@ import {
 } from "../../src/lib/designIntent";
 import { generateVisualSystem } from "../../src/lib/visualSystem";
 import { generateSiteMedia } from "../../src/lib/media";
+import { getOptionalAuth } from "./auth";
 
 const resolveDatabaseUrl = (): string => {
   const rawUrl = process.env.DATABASE_URL?.trim();
@@ -1183,14 +1184,14 @@ const contentSchemas: Record<SectionId, z.ZodTypeAny> = {
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type, authorization",
   "access-control-allow-methods": "POST, OPTIONS",
 };
 
 const streamHeadersBase = {
   "content-type": "text/plain; charset=utf-8",
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type, authorization",
   "access-control-allow-methods": "POST, OPTIONS",
   "access-control-expose-headers": "x-conversation-id,x-site-id,x-mode",
 };
@@ -3589,6 +3590,7 @@ async function createSiteFromPlanTool(params: {
   plan: SitePlan;
   context: ContractContext;
   conversationId?: string | null;
+  ownerId?: string | null;
 }) {
   const validation = validateSitePlan(params.plan, params.context);
   if (!validation.ok) {
@@ -3596,6 +3598,12 @@ async function createSiteFromPlanTool(params: {
   }
 
   const existing = await prisma.site.findUnique({ where: { id: params.siteId } });
+  if (existing && params.ownerId && !existing.ownerId) {
+    await prisma.site.update({
+      where: { id: params.siteId },
+      data: { ownerId: params.ownerId },
+    });
+  }
   if (existing) {
     const existingPages = await prisma.page.count({ where: { siteId: params.siteId } });
     if (existingPages > 0) {
@@ -3614,6 +3622,7 @@ async function createSiteFromPlanTool(params: {
           id: params.siteId,
           createdAt: now,
           updatedAt: now,
+          ownerId: params.ownerId ?? undefined,
         },
       });
     }
@@ -4487,6 +4496,10 @@ export const handler: Handler = async (event) => {
   if (event.httpMethod === "OPTIONS") return jsonResponse(200, { ok: true });
   if (event.httpMethod !== "POST") return jsonResponse(405, { error: "Method not allowed" });
 
+  const auth = getOptionalAuth(event);
+  if (!auth.ok) return jsonResponse(auth.statusCode, { error: auth.error });
+  const authUserId = auth.session?.userId ?? null;
+
   if (!process.env.OPENAI_API_KEY) {
     return jsonResponse(500, { error: "Missing OPENAI_API_KEY" });
   }
@@ -4540,8 +4553,16 @@ export const handler: Handler = async (event) => {
       conversation = await prisma.conversation.findUnique({ where: { siteId } });
     }
     if (!conversation) {
+      const conversationData: Record<string, unknown> = {};
+      if (siteContext && siteId) conversationData.siteId = siteId;
+      if (authUserId) conversationData.ownerId = authUserId;
       conversation = await prisma.conversation.create({
-        data: siteContext && siteId ? { siteId } : {},
+        data: conversationData,
+      });
+    } else if (authUserId && !conversation.ownerId) {
+      await prisma.conversation.update({
+        where: { id: conversation.id },
+        data: { ownerId: authUserId },
       });
     }
     const conversationId = conversation.id;
@@ -4632,7 +4653,14 @@ export const handler: Handler = async (event) => {
     : null;
 
   if (!conversation) {
-    conversation = await prisma.conversation.create({ data: {} });
+    conversation = await prisma.conversation.create({
+      data: authUserId ? { ownerId: authUserId } : {},
+    });
+  } else if (authUserId && !conversation.ownerId) {
+    await prisma.conversation.update({
+      where: { id: conversation.id },
+      data: { ownerId: authUserId },
+    });
   }
 
   const conversationId = conversation.id;
@@ -5070,6 +5098,7 @@ export const handler: Handler = async (event) => {
         blogEnabled: updatedContext.blog === "yes",
         advisoryMode: "assistive",
         state: "draft",
+        ownerId: authUserId ?? undefined,
       },
     });
 
@@ -5246,6 +5275,7 @@ export const handler: Handler = async (event) => {
         plan: planResult.plan,
         context: updatedContext,
         conversationId,
+        ownerId: authUserId,
       });
     } catch {
       return jsonResponse(500, { error: "Unable to create site structure from plan." });
@@ -5376,6 +5406,7 @@ export const handler: Handler = async (event) => {
           plan: planState.plan,
           context: updatedContext,
           conversationId,
+          ownerId: authUserId,
         });
 
         await saveSitePlan(conversationId, planState.plan, "confirmed");

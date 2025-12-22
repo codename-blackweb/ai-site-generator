@@ -1,6 +1,7 @@
 import type { Handler } from "@netlify/functions";
 import { PrismaClient, Prisma } from "@prisma/client";
 import path from "node:path";
+import { requireAuth, requireSiteOwner } from "./auth";
 
 const resolveDatabaseUrl = (): string => {
   const rawUrl = process.env.DATABASE_URL?.trim();
@@ -21,7 +22,7 @@ const prisma = new PrismaClient({
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type, authorization",
   "access-control-allow-methods": "POST, OPTIONS",
 };
 
@@ -52,6 +53,12 @@ export const handler: Handler = async (event) => {
   if (!siteId || !sectionId || !mediaAssetId) {
     return jsonResponse(400, { error: "siteId, sectionId, and mediaAssetId are required" });
   }
+
+  const auth = requireAuth(event);
+  if (!auth.ok) return jsonResponse(auth.statusCode, { error: auth.error });
+
+  const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId, { allowClaim: true });
+  if (!siteAccess.ok) return jsonResponse(siteAccess.statusCode, { error: siteAccess.error });
 
   const [section, mediaAsset] = await Promise.all([
     prisma.section.findUnique({ where: { id: sectionId } }),
