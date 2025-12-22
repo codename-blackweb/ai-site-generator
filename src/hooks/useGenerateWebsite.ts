@@ -1,111 +1,35 @@
-import { useCallback, useState } from "react";
-interface GenerateWebsitePayload {
+import { useMutation } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export type GenerateParams = {
   projectName: string;
-  description: string;
-}
-
-const buildFallbackSite = (projectName: string, goal: string) => {
-  const safeName = projectName || "Your Project";
-  const safeGoal = goal || "launch a modern website";
-
-  return {
-    hero: {
-      headline: `${safeName} — ${safeGoal}`,
-      subheadline: `A modern experience built to help you ${safeGoal}.`,
-      ctaPrimary: "Explore",
-      ctaSecondary: "Learn more",
-    },
-    about: {
-      title: `About ${safeName}`,
-      description: `${safeName} focuses on helping you ${safeGoal} with a clean, goal-driven experience.`,
-    },
-    features: [
-      {
-        title: "Purpose-built layout",
-        description: "Responsive, fast, and focused on your primary CTA.",
-        icon: "layout",
-      },
-      {
-        title: "Clear storytelling",
-        description: `Content that explains how you ${safeGoal} for your audience.`,
-        icon: "message-square",
-      },
-      {
-        title: "Built for conversion",
-        description: "Guides visitors to take action with straightforward CTAs.",
-        icon: "sparkles",
-      },
-    ],
-    testimonials: [
-      {
-        quote: `${safeName} helped us launch quickly and communicate clearly.`,
-        author: "A happy customer",
-        role: "Founder",
-      },
-    ],
-    cta: {
-      headline: `Ready to ${safeGoal}?`,
-      description: "Launch a clean, modern page tailored to your goal.",
-      buttonText: "Get started",
-    },
-    footer: {
-      tagline: `${safeName} — built with intent.`,
-    },
-    metadata: {
-      primaryColor: "#6B73FF",
-      secondaryColor: "#8B5CF6",
-      suggestedFont: "Space Grotesk",
-    },
-  };
+  industry?: string;
+  audience?: string;
+  goal?: string;
+  tone?: string;
+  colors?: string;
+  layout?: string;
 };
 
 export function useGenerateWebsite() {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const generateWebsite = useCallback(async (payload: GenerateWebsitePayload) => {
-    setIsGenerating(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/.netlify/functions/generate-website", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectName: payload.projectName,
-          goal: payload.description,
-        }),
+  const mutation = useMutation({
+    mutationFn: async (params: GenerateParams) => {
+      const { data, error } = await supabase.functions.invoke("generate-website", {
+        body: params,
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Website generator returned an error.");
-      }
+      if (error) throw new Error(error.message || "Website generation failed.");
+      if (!data) throw new Error("No data returned from generate-website.");
+      if (data.error) throw new Error(data.error);
 
-      const data = await response.json();
-
-      if ((data as any)?.error) {
-        throw new Error((data as any).error);
-      }
-
-      const generated = (data as any)?.generatedContent ?? buildFallbackSite(payload.projectName, payload.description);
-      if (!generated) {
-        throw new Error("No website content was returned from the generator.");
-      }
-
-      return generated;
-    } catch (err: any) {
-      const message = err?.message ?? "Website generation failed.";
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setIsGenerating(false);
-    }
-  }, []);
+      // Your function returns { generatedContent }
+      return data.generatedContent ?? data;
+    },
+  });
 
   return {
-    generateWebsite,
-    isGenerating,
-    error,
+    generateWebsite: mutation.mutateAsync,
+    isGenerating: mutation.isPending,
+    error: mutation.error as Error | null,
   };
 }

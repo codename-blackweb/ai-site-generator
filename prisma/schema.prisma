@@ -1,0 +1,220 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Conversation {
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  sitePurpose       String?
+  audience          String?
+  primaryConversion String?
+  toneAxis          String?
+  wantsBlog         Boolean?
+  messages          Message[]
+  siteId            String?  @unique
+  site              Site?    @relation(fields: [siteId], references: [id])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  role           String
+  mode           String?
+  content        String
+  conversationId String
+  createdAt      DateTime @default(now())
+
+  Conversation Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model Site {
+  id             String       @id @default(cuid())
+  conversationId String?
+  purpose        String?
+  audience       String?
+  primaryConversion String?
+  toneAxis       String?
+  blogEnabled    Boolean?
+  state          String       @default("draft")
+  voiceContract  Json?
+  designIntent   Json?
+  designIntentLockedAt DateTime?
+  visualSystem   Json?
+  visualSystemLockedAt DateTime?
+  facts          Json?
+  media          Json?
+  themeId        String?
+  releaseState   String       @default("draft")
+  publishedSnapshotId String?
+  advisoryMode   String       @default("assistive")
+  hasReceivedPrescriptiveMoment Boolean @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  pages          Page[]
+  mutationLogs   MutationLog[]
+  contentHistory SectionContentHistory[]
+  snapshots      Snapshot[]
+  auditRuns      AuditRun[]
+  recommendations Recommendation[]
+  mediaAssets    MediaAsset[]
+  mediaJobs      MediaJob[]
+  deployTargets  DeployTarget[]
+  conversation   Conversation?
+}
+
+model Page {
+  id        String    @id @default(cuid())
+  siteId    String
+  pageId    String
+  goal      String
+  position  Int
+  sections  Section[]
+
+  Site Site @relation(fields: [siteId], references: [id])
+
+  @@unique([siteId, pageId])
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  pageId    String
+  sectionId String
+  position  Int
+  content   Json?
+  variantId String?
+  contentHistory SectionContentHistory[]
+
+  Page Page @relation(fields: [pageId], references: [id])
+
+  @@unique([pageId, sectionId])
+}
+
+model SectionContentHistory {
+  id                String   @id @default(cuid())
+  sectionId         String
+  siteId            String
+  content           Json
+  status            String
+  instruction       String?
+  reason            String?
+  createdAt         DateTime @default(now())
+  conversationId    String?
+
+  Section Section @relation(fields: [sectionId], references: [id])
+  Site    Site    @relation(fields: [siteId], references: [id])
+}
+
+model MutationLog {
+  id             String   @id @default(cuid())
+  siteId         String
+  tool           String
+  arguments      Json
+  beforeSnapshot Json
+  afterSnapshot  Json
+  conversationId String?
+  createdAt      DateTime @default(now())
+
+  Site Site @relation(fields: [siteId], references: [id])
+}
+
+model Snapshot {
+  id        String   @id @default(cuid())
+  siteId    String
+  state     String
+  data      Json
+  label     String?
+  createdAt DateTime @default(now())
+
+  Site Site @relation(fields: [siteId], references: [id])
+}
+
+model AuditRun {
+  id             String   @id @default(cuid())
+  siteId         String
+  mode           String
+  findings       Json
+  createdAt      DateTime @default(now())
+  conversationId String?
+
+  Site Site @relation(fields: [siteId], references: [id])
+  recommendations Recommendation[]
+}
+
+model Recommendation {
+  id             String   @id @default(cuid())
+  siteId         String
+  auditRunId     String?
+  recommendationId String
+  key            String
+  title          String
+  rationale      String
+  impactSummary  String
+  context        String
+  criteriaText   Json
+  phase          String
+  score          Float
+  criteria       Json
+  tool           String?
+  args           Json
+  tradeoffs      Json
+  whyNotAlternatives Json
+  status         String
+  createdAt      DateTime @default(now())
+  conversationId String?
+
+  Site Site @relation(fields: [siteId], references: [id])
+  AuditRun AuditRun? @relation(fields: [auditRunId], references: [id])
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  siteId    String
+  role      String
+  kind      String
+  src       String
+  poster    String?
+  alt       String?
+  caption   String?
+  status    String
+  width     Int?
+  height    Int?
+  mime      String?
+  bytes     Int?
+  hash      String?
+  createdAt DateTime @default(now())
+
+  Site Site @relation(fields: [siteId], references: [id])
+
+  @@index([siteId, role])
+}
+
+model MediaJob {
+  id        String   @id @default(cuid())
+  siteId    String
+  role      String
+  status    String
+  input     Json
+  output    Json?
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Site Site @relation(fields: [siteId], references: [id])
+}
+
+model DeployTarget {
+  id        String   @id @default(cuid())
+  siteId    String
+  provider  String
+  tokenRef  String
+  providerSiteId String?
+  createdAt DateTime @default(now())
+
+  Site Site @relation(fields: [siteId], references: [id])
+  @@unique([siteId, provider])
+}

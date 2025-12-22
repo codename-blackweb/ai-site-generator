@@ -2,6 +2,64 @@
   command = "npm run build"
   publish = "dist"
 
+[dev]
+  port = 8888
+
+[[redirects]]
+  from = "/api/media/upload-url"
+  to = "/.netlify/functions/media_upload_url"
+  status = 200
+
+[[redirects]]
+  from = "/api/media/upload"
+  to = "/.netlify/functions/media_upload"
+  status = 200
+
+[[redirects]]
+  from = "/api/media/register"
+  to = "/.netlify/functions/media_register"
+  status = 200
+
+[[redirects]]
+  from = "/api/media/generate"
+  to = "/.netlify/functions/media_generate"
+  status = 200
+
+[[redirects]]
+  from = "/api/media/attach"
+  to = "/.netlify/functions/media_attach"
+  status = 200
+
+[[redirects]]
+  from = "/api/media/file/*"
+  to = "/.netlify/functions/media_file?assetId=:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/deploy/readiness"
+  to = "/.netlify/functions/deploy_readiness"
+  status = 200
+
+[[redirects]]
+  from = "/api/deploy/netlify/connect"
+  to = "/.netlify/functions/deploy_netlify_connect"
+  status = 200
+
+[[redirects]]
+  from = "/api/deploy/netlify/callback"
+  to = "/.netlify/functions/deploy_netlify_callback"
+  status = 200
+
+[[redirects]]
+  from = "/api/deploy/netlify"
+  to = "/.netlify/functions/deploy_netlify"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

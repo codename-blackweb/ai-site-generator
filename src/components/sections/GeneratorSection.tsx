@@ -125,7 +125,7 @@ export function GeneratorSection({ templatePreset }: GeneratorSectionProps) {
   const primaryLabel = buttonLabelMap[stage];
 
   return (
-    <section id="generator" className="py-32">
+    <section id="generator" className="py-32 scroll-mt-28">
       <div className="container max-w-3xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

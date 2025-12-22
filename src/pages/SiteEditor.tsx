@@ -33,19 +33,23 @@ export default function SiteEditor() {
   const deleteDomain = useDeleteDomain();
 
   const [domainInput, setDomainInput] = useState("");
-  const [jsonText, setJsonText] = useState("");
-  const [title, setTitle] = useState("");
-  const [nextSlug, setNextSlug] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
+  const [formState, setFormState] = useState({
+    title: "",
+    nextSlug: "",
+    isPublic: true,
+    jsonText: "",
+  });
 
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (website) {
-      setTitle(website.title ?? "");
-      setNextSlug(website.slug ?? "");
-      setIsPublic(!!website.is_public);
-      setJsonText(JSON.stringify(website.json_data ?? {}, null, 2));
+      setFormState({
+        title: website.title ?? "",
+        nextSlug: website.slug ?? "",
+        isPublic: !!website.is_public,
+        jsonText: JSON.stringify(website.json_data ?? {}, null, 2),
+      });
     }
   }, [website]);
 
@@ -83,7 +87,7 @@ export default function SiteEditor() {
   }
 
   const handleSave = async () => {
-    const parsed = safeParseJson(jsonText);
+    const parsed = safeParseJson(formState.jsonText);
     if (!parsed.ok) {
       toast.error(parsed.error);
       return;
@@ -93,9 +97,9 @@ export default function SiteEditor() {
       await updateWebsite.mutateAsync({
         id: website.id,
         updates: {
-          title: title || null,
-          slug: nextSlug || null,
-          is_public: isPublic,
+          title: formState.title || null,
+          slug: formState.nextSlug || null,
+          is_public: formState.isPublic,
           json_data: parsed.value,
         },
       });
@@ -204,8 +208,10 @@ export default function SiteEditor() {
             <div className="text-sm text-muted-foreground mb-2">Title</div>
             <input
               className="w-full px-3 py-2 rounded-lg bg-secondary/40 border border-border"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={formState.title}
+              onChange={(e) =>
+                setFormState((prev) => ({ ...prev, title: e.target.value }))
+              }
               placeholder="Website title"
             />
           </div>
@@ -214,8 +220,10 @@ export default function SiteEditor() {
             <div className="text-sm text-muted-foreground mb-2">Slug</div>
             <input
               className="w-full px-3 py-2 rounded-lg bg-secondary/40 border border-border"
-              value={nextSlug}
-              onChange={(e) => setNextSlug(e.target.value)}
+              value={formState.nextSlug}
+              onChange={(e) =>
+                setFormState((prev) => ({ ...prev, nextSlug: e.target.value }))
+              }
               placeholder="my-site-slug"
             />
           </div>
@@ -224,12 +232,14 @@ export default function SiteEditor() {
             <div className="text-sm text-muted-foreground mb-2">Visibility</div>
             <button
               className={`w-full px-3 py-2 rounded-lg border border-border flex items-center justify-center gap-2 ${
-                isPublic ? "bg-primary text-primary-foreground" : "bg-secondary/40"
+                formState.isPublic ? "bg-primary text-primary-foreground" : "bg-secondary/40"
               }`}
-              onClick={() => setIsPublic(!isPublic)}
+              onClick={() =>
+                setFormState((prev) => ({ ...prev, isPublic: !prev.isPublic }))
+              }
             >
-              {isPublic ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              {isPublic ? "Public" : "Draft"}
+              {formState.isPublic ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+              {formState.isPublic ? "Public" : "Draft"}
             </button>
           </div>
         </div>
@@ -315,8 +325,10 @@ export default function SiteEditor() {
           </p>
           <textarea
             className="w-full min-h-[420px] font-mono text-sm p-4 rounded-xl bg-secondary/30 border border-border"
-            value={jsonText}
-            onChange={(e) => setJsonText(e.target.value)}
+            value={formState.jsonText}
+            onChange={(e) =>
+              setFormState((prev) => ({ ...prev, jsonText: e.target.value }))
+            }
           />
         </div>
       </div>
