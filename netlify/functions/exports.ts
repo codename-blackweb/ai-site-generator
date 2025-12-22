@@ -59,7 +59,7 @@ export const handler: Handler = async (event) => {
   const auth = requireAuth(event);
   if (!auth.ok) return jsonResponse(auth.statusCode, { error: auth.error });
 
-  const siteAccess = await requireSiteOwner(prisma, exportId, auth.session.userId, { allowClaim: true });
+  const siteAccess = await requireSiteOwner(prisma, exportId, auth.session.userId);
   if (!siteAccess.ok) return jsonResponse(siteAccess.statusCode, { error: siteAccess.error });
 
   const zipPath = path.join("/tmp/exports", `${exportId}.zip`);

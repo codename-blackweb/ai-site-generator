@@ -13,7 +13,7 @@ type AuthResult =
 const getJwtSecret = () => {
   const secret = process.env.SUPABASE_JWT_SECRET;
   if (!secret) {
-    throw new Error("SUPABASE_JWT_SECRET is not configured");
+    throw new Error("Server auth is not configured");
   }
   return secret;
 };
@@ -95,12 +95,15 @@ export const getOptionalAuth = (event: { headers?: Record<string, string | undef
     return {
       ok: false,
       statusCode: 500,
-      error: error?.message || "auth_not_configured",
+      error: error?.message || "Server auth is not configured",
     };
   }
 };
 
 export const requireAuth = (event: { headers?: Record<string, string | undefined> }) => {
+  if (!process.env.SUPABASE_JWT_SECRET) {
+    return { ok: false, statusCode: 500, error: "Server auth is not configured" } as const;
+  }
   const result = getOptionalAuth(event);
   if (!result.ok) return result;
   if (!result.session) return { ok: false, statusCode: 401, error: "unauthenticated" } as const;

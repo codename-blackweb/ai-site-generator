@@ -87,7 +87,7 @@ export const handler: Handler = async (event) => {
     const siteId = event.queryStringParameters?.siteId?.trim() ?? "";
     if (!siteId) return jsonResponse(400, { error: "siteId is required" });
 
-    const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId, { allowClaim: true });
+    const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId);
     if (!siteAccess.ok) return jsonResponse(siteAccess.statusCode, { error: siteAccess.error });
 
     const target = await prisma.deployTarget.findUnique({
@@ -117,7 +117,7 @@ export const handler: Handler = async (event) => {
   const site = await prisma.site.findUnique({ where: { id: siteId }, select: { id: true } });
   if (!site) return jsonResponse(404, { error: "Site not found" });
 
-  const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId, { allowClaim: true });
+  const siteAccess = await requireSiteOwner(prisma, siteId, auth.session.userId);
   if (!siteAccess.ok) return jsonResponse(siteAccess.statusCode, { error: siteAccess.error });
 
   const target = await prisma.deployTarget.findUnique({
