@@ -5,6 +5,10 @@
 [dev]
   port = 8888
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 [[redirects]]
   from = "/api/media/upload-url"
   to = "/.netlify/functions/media_upload_url"
