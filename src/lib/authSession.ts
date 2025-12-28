@@ -1,8 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const getAccessToken = async () => {
-  const { data } = await supabase.auth.getSession();
-  return data.session?.access_token ?? null;
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? null;
+  } catch {
+    return null;
+  }
 };
 
 export const buildAuthHeaders = async (baseHeaders: Record<string, string> = {}) => {

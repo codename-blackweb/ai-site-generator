@@ -44,11 +44,18 @@ export function ChatWorkspace() {
     setMessages((prev) => [...prev, { id: assistantId, role: "assistant", content: "" }]);
 
     try {
+      let authHeader: Record<string, string> = {};
+      try {
+        authHeader = await getAuthHeader();
+      } catch {
+        authHeader = {};
+      }
+
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          ...(await getAuthHeader()),
+          ...authHeader,
         },
         body: JSON.stringify({
           message: userMessage.content,
