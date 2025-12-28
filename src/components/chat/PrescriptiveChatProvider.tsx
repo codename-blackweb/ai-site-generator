@@ -40,7 +40,8 @@ export function PrescriptiveChatProvider({ children }: { children: ReactNode }) 
   useEffect(() => {
     const wsUrl = import.meta.env.VITE_WS_URL as string | undefined;
     const httpUrlOverride = import.meta.env.VITE_CHAT_HTTP_URL as string | undefined;
-    const httpUrl = httpUrlOverride || "/.netlify/functions/chat";
+    const transportOverride = import.meta.env.VITE_CHAT_TRANSPORT as string | undefined;
+    const httpUrl = httpUrlOverride || "/api/chat";
     const sessionId = (() => {
       if (typeof window === "undefined") return `session_${Date.now()}`;
       const existing = sessionStorage.getItem("exhibit.sessionId");
@@ -58,14 +59,26 @@ export function PrescriptiveChatProvider({ children }: { children: ReactNode }) 
         : localStorage.getItem("exhibit.siteId") || "local-dev";
     const pageId = typeof window === "undefined" ? "home" : window.location.pathname || "home";
 
-    const shouldUseMock = import.meta.env.DEV && !wsUrl && !httpUrlOverride;
-    const nextTransport = wsUrl ? "ws" : shouldUseMock ? "mock" : "http";
+    const normalizedOverride = transportOverride?.toLowerCase();
+    const nextTransport =
+      normalizedOverride === "mock"
+        ? "mock"
+        : normalizedOverride === "http"
+          ? "http"
+          : normalizedOverride === "ws"
+            ? wsUrl
+              ? "ws"
+              : "http"
+            : wsUrl
+              ? "ws"
+              : "http";
     setTransport(nextTransport);
-    const socket = wsUrl
-      ? createSocketClient(wsUrl, { siteId, pageId, sessionId })
-      : shouldUseMock
-        ? createMockChatSocket()
-        : createHttpChatAdapter(httpUrl, { siteId, pageId });
+    const socket =
+      nextTransport === "ws"
+        ? createSocketClient(wsUrl!, { siteId, pageId, sessionId })
+        : nextTransport === "mock"
+          ? createMockChatSocket()
+          : createHttpChatAdapter(httpUrl, { siteId, pageId });
     socketRef.current = socket;
 
     const handleConnect = () => setConnected(true);
@@ -132,8 +145,25 @@ export function PrescriptiveChatProvider({ children }: { children: ReactNode }) 
     const trimmed = content.trim();
     if (!trimmed) return;
 
+    if (!socketRef.current) {
+      const errorMessage = "No chat transport configured.";
+      console.error(errorMessage);
+      setMessages((prev) => [
+        ...prev,
+        createClientMessage(trimmed),
+        {
+          id: `error_${Date.now()}`,
+          role: "ai",
+          type: "chatter",
+          content: errorMessage,
+          createdAt: Date.now(),
+        },
+      ]);
+      return;
+    }
+
     setMessages((prev) => [...prev, createClientMessage(trimmed)]);
-    socketRef.current?.emit("user_message", { role: "user", content: trimmed, timestamp: Date.now() });
+    socketRef.current.emit("user_message", { role: "user", content: trimmed, timestamp: Date.now() });
   };
 
   const value = useMemo(
